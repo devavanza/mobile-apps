@@ -1,0 +1,6 @@
+module Pods_feedback_feedbackTests {
+  umbrella header "Pods-feedback-feedbackTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
