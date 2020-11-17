@@ -422,7 +422,7 @@ export default class Feedback extends PureComponent {
                 multiline={true}
                 numberOfLines={10}
                 style={styles.textArea}
-                placeholder=''
+                placeholder="Enter your feedback..."
                 onChangeText={textValue => {
                   console.log(textValue)
                   this.setState({textValue})
@@ -801,33 +801,39 @@ export default class Feedback extends PureComponent {
                 borderRadius: 10,
                 width: 370,
               }}>
-              <Text
-                style={{
-                  padding: 10,
-                  fontSize: 20,
-                  textAlign: 'left',
-                  color: 'rgb(94, 212, 228);',
-                }}>
-                {'Suggestions & Feedback'}
-              </Text>
-             
-              <TouchableOpacity
-                style={{
-                  // zIndex: 99,
-                  alignSelf: 'flex-end',
-                  width: 10,
-                  height: 10,
-                  transform: [{scale: 0.065}],
-                  left: -1,
-                  // position: 'absolute',
-                }}
-                onPress={() => {
-                  alert("clicked")
-                  // this.props.endFlow();
-                }}>
-                <Image source={require('../resouces/close_blue.png')} />
-              </TouchableOpacity>
-             
+              <View style={{flexDirection: 'row'}}>
+                <Text
+                  style={{
+                    padding: 10,
+                    fontSize: 20,
+                    textAlign: 'left',
+                    // color: 'rgb(94, 212, 228);',
+                    color: 'rgb(23, 98, 184)',
+                  }}>
+                  {'Suggestions & Feedback'}
+                </Text>
+
+                <View>
+                  <TouchableOpacity
+                    style={{
+                      top: 7,
+                      left: 85,
+                    }}
+                    onPress={() => {
+                       this.props.endFlow();
+                    }}>
+                    <Image
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: 100,
+                        resizeMode: 'contain',
+                      }}
+                      source={require('../resouces/close_blue.png')}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
               <View
                 style={{
                   borderBottomColor: 'rgba(0, 0, 0, 0.12)',
@@ -929,6 +935,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.3)',
     borderWidth: 1,
     padding: 5,
+    justifyContent: "flex-start",
     // borderStyle: 'solid',
     borderRadius: 1,
   },
