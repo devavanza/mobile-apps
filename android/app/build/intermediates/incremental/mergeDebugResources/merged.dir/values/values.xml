@@ -378,6 +378,7 @@
     <string name="scrollbar_description" translatable="false">Scroll Bar</string>
     <string name="search_description" translatable="false">Search Field</string>
     <string name="search_menu_title">Search</string>
+    <string name="shipped_ffmpeg_version">n2.4.2</string>
     <string name="spinbutton_description" translatable="false">Spin Button</string>
     <string name="state_busy_description" translatable="false">busy</string>
     <string name="state_collapsed_description" translatable="false">collapsed</string>

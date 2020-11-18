@@ -968,18 +968,18 @@ public final class R {
         public static final int scrollbar_description = 0x7f0c005b;
         public static final int search_description = 0x7f0c005c;
         public static final int search_menu_title = 0x7f0c005d;
-        public static final int spinbutton_description = 0x7f0c005e;
-        public static final int state_busy_description = 0x7f0c005f;
-        public static final int state_collapsed_description = 0x7f0c0060;
-        public static final int state_expanded_description = 0x7f0c0061;
-        public static final int state_mixed_description = 0x7f0c0062;
-        public static final int state_off_description = 0x7f0c0063;
-        public static final int state_on_description = 0x7f0c0064;
-        public static final int status_bar_notification_info_overflow = 0x7f0c0065;
-        public static final int summary_description = 0x7f0c0066;
-        public static final int tablist_description = 0x7f0c0067;
-        public static final int timer_description = 0x7f0c0068;
-        public static final int toolbar_description = 0x7f0c0069;
+        public static final int spinbutton_description = 0x7f0c005f;
+        public static final int state_busy_description = 0x7f0c0060;
+        public static final int state_collapsed_description = 0x7f0c0061;
+        public static final int state_expanded_description = 0x7f0c0062;
+        public static final int state_mixed_description = 0x7f0c0063;
+        public static final int state_off_description = 0x7f0c0064;
+        public static final int state_on_description = 0x7f0c0065;
+        public static final int status_bar_notification_info_overflow = 0x7f0c0066;
+        public static final int summary_description = 0x7f0c0067;
+        public static final int tablist_description = 0x7f0c0068;
+        public static final int timer_description = 0x7f0c0069;
+        public static final int toolbar_description = 0x7f0c006a;
     }
     public static final class style {
         private style() {}

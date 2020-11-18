@@ -182,7 +182,7 @@ public final class R {
         public static final int fallback_menu_item_copy_link = 0x7f0c004e;
         public static final int fallback_menu_item_open_in_browser = 0x7f0c004f;
         public static final int fallback_menu_item_share_link = 0x7f0c0050;
-        public static final int status_bar_notification_info_overflow = 0x7f0c0065;
+        public static final int status_bar_notification_info_overflow = 0x7f0c0066;
     }
     public static final class style {
         private style() {}

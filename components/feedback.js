@@ -40,7 +40,7 @@ export default class Feedback extends PureComponent {
       paused: false,
       stoppedRecording: false,
       finished: false,
-      audioPath: AudioUtils.DocumentDirectoryPath + '/test.wma',
+      audioPath: AudioUtils.DocumentDirectoryPath + '/test.wav',
       hasPermission: undefined,
     }
 
@@ -49,11 +49,11 @@ export default class Feedback extends PureComponent {
   }
   prepareRecordingPath (audioPath) {
     AudioRecorder.prepareRecordingAtPath(audioPath, {
-      SampleRate: 22050,
+      SampleRate: 16000,
       Channels: 1,
       AudioQuality: 'Low',
-      AudioEncoding: 'wma',
-      AudioEncodingBitRate: 32000,
+      AudioEncoding: 'PCM',
+      AudioEncodingBitRate: 256,
     })
   }
   handleAccessToken = async () => {
@@ -84,7 +84,11 @@ export default class Feedback extends PureComponent {
     this.setState({error: error})
   }
   componentDidMount () {
-    this.setState({completed: false, check: undefined})
+    this.setState({
+      completed: false,
+      check: undefined,
+      baseURL: this.props.baseURL,
+    })
 
     if (this.props.type == 'video') {
       this.setState({label: 'Start Recording'})
@@ -235,26 +239,36 @@ export default class Feedback extends PureComponent {
         bodyFormData.append('file', {
           name: filename,
           uri: 'file://' + this.state.audioPath,
-          type: 'audio/x-wma',
+          type: 'audio/x-wav',
         })
         bodyFormData.append('type', 'A')
         bodyFormData.append('orgId', 'AFZ')
-        let response = await axios({
+        bodyFormData.append('language', 'en-US')
+        console.log(JSON.stringify(bodyFormData))
+        let responseInt = await axios({
           method: 'post',
-          url: `${this.state.baseURL}/API/Feedback/uploadInteraction`,
+          url: `${this.state.baseURL}/API/Feedback/quickFeedback`,
           data: bodyFormData,
           headers: {
             'Content-Type': 'multipart/form-data',
             token: await this.handleAccessToken(),
           },
         })
-        console.log('upload response', response.data)
-        if (response.status == 200) {
+        bodyFormData.append('interactionId', responseInt.data.id)
+
+        console.log('upload response', responseInt.data)
+        if (responseInt.status == 200) {
           this.setSubmitLoading(false)
-          this.setInteractionId(response.data.id)
-          // handleAudioIndex();
-          // setSubmitLoading(false);
-          // setEmoji(true);
+          this.setInteractionId(responseInt.data.id)
+          await axios({
+            method: 'post',
+            url: `${this.state.baseURL}/API/Feedback/uploadInteraction`,
+            data: bodyFormData,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              token: await this.handleAccessToken(),
+            },
+          })
         }
       } catch (err) {
         console.log(err.stack)
@@ -373,10 +387,11 @@ export default class Feedback extends PureComponent {
       this.setTextError('Please enter your feedback')
     } else {
       this.setSubmitLoading(true)
+      let token = await this.handleAccessToken()
       try {
         let response = await axios({
           method: 'post',
-          url: `${this.state.baseURL}/API/Feedback/uploadInteraction`,
+          url: `${this.state.baseURL}/API/Feedback/quickFeedback`,
           data: {
             type: 'T',
             orgId: 'AFZ',
@@ -391,14 +406,35 @@ export default class Feedback extends PureComponent {
           },
           headers: {
             'Content-Type': 'application/json',
-            token: await this.handleAccessToken(),
+            token: token,
           },
         })
         console.log('text upload response', response)
         if (response.data) {
           this.setSubmitLoading(false)
           this.setTextError(null)
-          this.setInteractionId(response.data.id)
+          this.setInteractionId(response.data.interactionId)
+          await axios({
+            method: 'post',
+            url: `${this.state.baseURL}/API/Feedback/uploadInteraction`,
+            data: {
+              type: 'T',
+              orgId: 'AFZ',
+              interactionId: response.data.interactionId,
+              textData: {
+                documents: [
+                  {
+                    id: '1',
+                    text: this.state.textValue,
+                  },
+                ],
+              },
+            },
+            headers: {
+              'Content-Type': 'application/json',
+              token: token,
+            },
+          })
         }
       } catch (err) {
         console.log(err)
@@ -422,7 +458,7 @@ export default class Feedback extends PureComponent {
                 multiline={true}
                 numberOfLines={10}
                 style={styles.textArea}
-                placeholder="Enter your feedback..."
+                placeholder='Enter your feedback...'
                 onChangeText={textValue => {
                   console.log(textValue)
                   this.setState({textValue})
@@ -450,22 +486,6 @@ export default class Feedback extends PureComponent {
           <>
             <View style={styles.container}>
               <View style={{...styles.controls, height: 160}}>
-                {/* {this._renderButton(
-                  'RECORD',
-                  () => {
-                    this._record()
-                  },
-                  this.state.recording,
-                )} */}
-                {/* {this._renderButton('PLAY', () => {
-                  this._play()
-                })} */}
-                {/* {this._renderButton('STOP', () => {
-                  this._stop()
-                })} */}
-                {/* {this._renderPauseButton(() => {
-                  this.state.paused ? this._resume() : this._pause()
-                })} */}
                 <TouchableOpacity
                   style={{
                     width: '50%',
@@ -476,31 +496,19 @@ export default class Feedback extends PureComponent {
                     marginLeft: 120,
                   }}
                   onPressIn={() => {
-                    // this.setState({isAudio: true, transparent: false})
                     this._record()
                   }}
                   onPressOut={() => {
-                    // this.setState({isAudio: true, transparent: false})
                     this._stop()
                   }}>
                   <Image
                     style={{
                       width: '50%',
                       height: '50%',
-                      // borderRadius: 100,
-                      // resizeMode: 'contain',
                     }}
                     source={require('../resouces/mic-audio.png')}
                   />
                 </TouchableOpacity>
-                {/* <Text style={styles.progressText}> */}
-                {/* <Text style={{color: '#000', left: 20, top: -70, position:'absolute'}}>
-                  {this.state.currentTime} s
-                </Text> */}
-
-                {/* <Text style={{...styles.progressText, top:0,left:150}}>
-                  {this.state.currentTime}s
-                </Text> */}
 
                 <View
                   style={{
@@ -584,7 +592,11 @@ export default class Feedback extends PureComponent {
                 </Text>
                 <Image
                   style={styles.image}
-                  source={require('../resouces/man-smile1.png')}
+                  source={
+                    this.props.gender == 'female'
+                      ? require('../resouces/woman-smile1.png')
+                      : require('../resouces/man-smile1.png')
+                  }
                 />
               </View>
               <View
@@ -601,7 +613,7 @@ export default class Feedback extends PureComponent {
                 <Button
                   title={'  Yes  '}
                   color='rgb(23, 98, 184)'
-                  onPress={() => this.handleSatisfaction('Yes', 'Happy')}
+                  onPress={() => this.handleSatisfaction('Yes', 'positive')}
                   disabled={this.state.disabledVid}
                 />
                 <View
@@ -621,6 +633,7 @@ export default class Feedback extends PureComponent {
           </>
         )
       case 'other':
+        // case 'text':
         return (
           <>
             <View style={styles.container}>
@@ -637,41 +650,74 @@ export default class Feedback extends PureComponent {
                   source={require('../resouces/man-smile1.png')}
                 /> */}
               </View>
-
-              <View style={{height: 150}}>
-                <TouchableOpacity
-                  onPress={() => this.handleSatisfaction('Yes', 'Neutral')}>
-                  <Image
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: 100,
-                      resizeMode: 'contain',
-                    }}
-                    source={require('../resouces/man-smile2.png')}
-                  />
-                </TouchableOpacity>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <View style={{width: 150, height: 150, textAlign: 'center'}}>
+                  <TouchableOpacity
+                    onPress={() => this.handleSatisfaction('Yes', 'neutral')}>
+                    <Image
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: 100,
+                        resizeMode: 'contain',
+                      }}
+                      source={
+                        this.props.gender == 'female'
+                          ? require('../resouces/woman-smile2.png')
+                          : require('../resouces/man-smile2.png')
+                      }
+                    />
+                    <Text
+                      style={{
+                        marginLeft: 57,
+                      }}>
+                      neutral
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View
+                  style={{
+                    width: 10,
+                    height: 10,
+                  }}
+                />
+                <View style={{width: 150, height: 150}}>
+                  <TouchableOpacity
+                    onPress={() => this.handleSatisfaction('Yes', 'negative')}>
+                    <Image
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: 100,
+                        resizeMode: 'contain',
+                      }}
+                      source={
+                        this.props.gender == 'female'
+                          ? require('../resouces/woman-smile3.png')
+                          : require('../resouces/man-smile3.png')
+                      }
+                    />
+                    <Text
+                      style={{
+                        marginLeft: 65,
+                      }}>
+                      sad
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
               <View
                 style={{
                   width: 10,
-                  height: 10,
+                  height: 50,
                 }}
               />
-              <View style={{height: 150}}>
-                <TouchableOpacity
-                  onPress={() => this.handleSatisfaction('Yes', 'Sad')}>
-                  <Image
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: 100,
-                      resizeMode: 'contain',
-                    }}
-                    source={require('../resouces/man-smile3.png')}
-                  />
-                </TouchableOpacity>
-              </View>
             </View>
           </>
         )
@@ -820,7 +866,7 @@ export default class Feedback extends PureComponent {
                       left: 85,
                     }}
                     onPress={() => {
-                       this.props.endFlow();
+                      this.props.endFlow()
                     }}>
                     <Image
                       style={{
@@ -934,8 +980,9 @@ const styles = StyleSheet.create({
   textArea: {
     borderColor: 'rgba(0, 0, 0, 0.3)',
     borderWidth: 1,
+    textAlignVertical: 'top',
     padding: 5,
-    justifyContent: "flex-start",
+    justifyContent: 'flex-start',
     // borderStyle: 'solid',
     borderRadius: 1,
   },

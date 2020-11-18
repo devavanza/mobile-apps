@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import com.rnim.rn.audio.ReactNativeAudioPackage;
 // react-native-audio-recorder-player
 import com.dooboolab.RNAudioRecorderPlayerPackage;
+// react-native-audio-transcoder
+import com.rnaudiotranscoder.RNAudioTranscoderPackage;
 // react-native-camera
 import org.reactnative.camera.RNCameraPackage;
 // react-native-sound
@@ -72,6 +74,7 @@ public class PackageList {
       new MainReactPackage(mConfig),
       new ReactNativeAudioPackage(),
       new RNAudioRecorderPlayerPackage(),
+      new RNAudioTranscoderPackage(),
       new RNCameraPackage(),
       new RNSoundPackage(),
       new VectorIconsPackage(),

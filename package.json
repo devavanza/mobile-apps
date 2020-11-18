@@ -16,6 +16,7 @@
     "react-native": "^0.63.3",
     "react-native-audio": "^4.3.0",
     "react-native-audio-recorder-player": "^2.6.0-rc3",
+    "react-native-audio-transcoder": "^0.3.0",
     "react-native-camera": "^3.40.0",
     "react-native-loading-spinner-overlay": "^2.0.0",
     "react-native-sound": "^0.11.0",

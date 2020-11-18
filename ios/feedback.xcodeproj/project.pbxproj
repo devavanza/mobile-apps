@@ -36,6 +36,7 @@
 		2A11FD6DE60040DEAA2FD399 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CBA248F6AD104AE19E1E4545 /* Octicons.ttf */; };
 		B83DEB81DD114F329FAD59EE /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E017DBCD3E1F48A5A35497F8 /* SimpleLineIcons.ttf */; };
 		8920CE92AFEC41B1A03119AE /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 29DA009103F3443998507AB1 /* Zocial.ttf */; };
+		0DCF6DC047A14CEDB7FC0AEC /* libRNAudioTranscoder.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E6703E301D764BC79B53B5CC /* libRNAudioTranscoder.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +100,8 @@
 		CBA248F6AD104AE19E1E4545 /* Octicons.ttf */ = {isa = PBXFileReference; name = "Octicons.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		E017DBCD3E1F48A5A35497F8 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; name = "SimpleLineIcons.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		29DA009103F3443998507AB1 /* Zocial.ttf */ = {isa = PBXFileReference; name = "Zocial.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		066D3B7B4086455D90E7040D /* RNAudioTranscoder.xcodeproj */ = {isa = PBXFileReference; name = "RNAudioTranscoder.xcodeproj"; path = "../node_modules/react-native-audio-transcoder/RNAudioTranscoder/RNAudioTranscoder.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		E6703E301D764BC79B53B5CC /* libRNAudioTranscoder.a */ = {isa = PBXFileReference; name = "libRNAudioTranscoder.a"; path = "libRNAudioTranscoder.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +118,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE26629F533350E83B11D08D /* libPods-feedback.a in Frameworks */,
+				0DCF6DC047A14CEDB7FC0AEC /* libRNAudioTranscoder.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,6 +188,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				066D3B7B4086455D90E7040D /* RNAudioTranscoder.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -699,6 +704,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/feedback.app/feedback";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-audio-transcoder/RNAudioTranscoder/RNAudioTranscoder",
+				);
 			};
 			name = Debug;
 		};
@@ -719,6 +732,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/feedback.app/feedback";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-audio-transcoder/RNAudioTranscoder/RNAudioTranscoder",
+				);
 			};
 			name = Release;
 		};
@@ -742,6 +763,10 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-audio-transcoder/RNAudioTranscoder/RNAudioTranscoder",
+				);
 			};
 			name = Debug;
 		};
@@ -763,6 +788,10 @@
 				PRODUCT_NAME = feedback;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-audio-transcoder/RNAudioTranscoder/RNAudioTranscoder",
+				);
 			};
 			name = Release;
 		};
@@ -791,6 +820,14 @@
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-audio-transcoder/RNAudioTranscoder/RNAudioTranscoder",
+				);
 			};
 			name = Debug;
 		};
@@ -819,6 +856,14 @@
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-audio-transcoder/RNAudioTranscoder/RNAudioTranscoder",
+				);
 			};
 			name = Release;
 		};
@@ -846,6 +891,14 @@
 				SDKROOT = appletvos;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/feedback-tvOS.app/feedback-tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.1;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-audio-transcoder/RNAudioTranscoder/RNAudioTranscoder",
+				);
 			};
 			name = Debug;
 		};
@@ -873,6 +926,14 @@
 				SDKROOT = appletvos;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/feedback-tvOS.app/feedback-tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.1;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-audio-transcoder/RNAudioTranscoder/RNAudioTranscoder",
+				);
 			};
 			name = Release;
 		};

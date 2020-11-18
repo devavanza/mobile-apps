@@ -5585,6 +5585,11 @@ react-native-audio-recorder-player@^2.6.0-rc3:
   dependencies:
     dooboolab-welcome "^1.2.0"
 
+react-native-audio-transcoder@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-audio-transcoder/-/react-native-audio-transcoder-0.3.0.tgz#6a5376f950dc68f7c2ad782d034179e18c917452"
+  integrity sha1-alN2+VDcaPfCrXgtA0F54YyRdFI=
+
 react-native-audio@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/react-native-audio/-/react-native-audio-4.3.0.tgz#fae22b81f6a4dda706fd4837d0c6a89c66cf2e7e"

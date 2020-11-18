@@ -17,9 +17,9 @@ let state = {
 
 const App: () => React$Node = () => {
    return <Wrapper
-   Gender={"male"}
+   gender={"female"}
    language={"ar"}
-   api={""}
+   api={'https://avanza-training.westeurope.cloudapp.azure.com'}
    clientKey={""}
    />
   // return  <WebView source={{ uri: 'https://avanza-training.westeurope.cloudapp.azure.com/' }} />;

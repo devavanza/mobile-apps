@@ -1132,6 +1132,7 @@ string rn_tab_description
 string scrollbar_description
 string search_description
 string search_menu_title
+string shipped_ffmpeg_version
 string spinbutton_description
 string state_busy_description
 string state_collapsed_description

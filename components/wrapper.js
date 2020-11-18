@@ -10,7 +10,7 @@ import {
 } from 'react-native'
 import {Colors} from 'react-native/Libraries/NewAppScreen'
 import Feedback from './feedback.js'
-
+ 
 export default class Wrapper extends Component {
   // initial state
   state = {
@@ -110,7 +110,7 @@ export default class Wrapper extends Component {
       <View style={styles.container}>
         <Image
           style={{
-            width: '130%',
+            width: '150%',
             height: '50%',
             top: 0,
             // borderRadius: 100,
@@ -140,7 +140,7 @@ export default class Wrapper extends Component {
                 justifyContent: 'center',
                 backgroundColor: 'rgba(0,0,0,0.5)',
               }}>
-              <Feedback type='video' endFlow={this.endFlow.bind(this)} />
+              <Feedback type='video' gender={this.props.gender} baseURL={this.props.api} endFlow={this.endFlow.bind(this)} />
             </View>
           )}
 
@@ -152,7 +152,7 @@ export default class Wrapper extends Component {
                 justifyContent: 'center',
                 backgroundColor: 'rgba(0,0,0,0.5)',
               }}>
-              <Feedback type='audio' endFlow={this.endFlow.bind(this)} />
+              <Feedback type='audio' gender={this.props.gender}  baseURL={this.props.api}  endFlow={this.endFlow.bind(this)} />
             </View>
           )}
           {this.state.isText && (
@@ -163,7 +163,7 @@ export default class Wrapper extends Component {
                 justifyContent: 'center',
                 backgroundColor: 'rgba(0, 0, 0, 0.87)',
               }}>
-              <Feedback type='text' endFlow={this.endFlow.bind(this)} />
+              <Feedback type='text' gender={this.props.gender}  baseURL={this.props.api}  endFlow={this.endFlow.bind(this)} />
             </View>
           )}
         </Modal>
