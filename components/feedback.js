@@ -16,8 +16,7 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native'
-import {I18nManager} from 'react-native'
-I18nManager.allowRTL(false)
+
 import {Colors} from 'react-native/Libraries/NewAppScreen'
 import axios from 'axios'
 import {RNCamera} from 'react-native-camera'
@@ -34,7 +33,6 @@ export default class Feedback extends PureComponent {
     this.state = {
       path: '',
       label: res.resolve('submit', this.props.lang),
-      // baseURL: 'https://avanza-training.westeurope.cloudapp.azure.com',
       camera: {
         type: RNCamera.Constants.Type.back,
         flashMode: RNCamera.Constants.FlashMode.auto,
@@ -231,7 +229,7 @@ export default class Feedback extends PureComponent {
     this.setTextError(null)
     if (this.state.currentTime <= 5) {
       this.setTextError('Audio clip must be more than 5 seconds!')
-      this.setSubmitLoading(false);
+      this.setSubmitLoading(false)
     } else if (!this.state.stoppedRecording) {
       this.setTextError('Please record your audio!')
     } else {
@@ -441,7 +439,6 @@ export default class Feedback extends PureComponent {
         },
       })
       if (response.status == 200) {
-        console.log(response.data, 'DFFFFFFFFFFFFFFFFFFFFFFFF')
         if (response.data.faceResponse.length > 0) {
           this.setState([
             ...this.state.faceResponses,
@@ -457,6 +454,7 @@ export default class Feedback extends PureComponent {
       console.log('Error in uploading face photo', err.stack)
     }
   }
+
   aggregateFaceResponses = faceResponses => {
     let emotion = {
       negative: 0,
@@ -654,6 +652,9 @@ export default class Feedback extends PureComponent {
               videoHeight={900}
               thumbnail={{uri: 'https://i.picsum.photos/id/866/1600/900.jpg'}}
             />
+            <Text style={{color: 'red', fontStyle: 'italic'}}>
+              {this.state.error}
+            </Text>
           </View>
         )
       case 'audio':
@@ -1141,7 +1142,7 @@ export default class Feedback extends PureComponent {
     } else if (!this.state.recording) {
       this.setState({
         recording: true,
-        timer: 20,
+        timer: 60,
       })
       // default to mp4 for android as codec is not set
       console.log('i am here')
@@ -1219,7 +1220,10 @@ export default class Feedback extends PureComponent {
   }
   handleSubmitVideo = async () => {
     this.setTextError(null)
-    if (!this.state.showUploadVideo) {
+    console.log(this.state.timer)
+    if (this.state.timer >= 55) {
+      this.setTextError('Video must be atleast 5 seconds long!')
+    } else if (!this.state.showUploadVideo) {
       this.setTextError('Please record your video first!')
     } else {
       this.setSubmitLoading(true)
