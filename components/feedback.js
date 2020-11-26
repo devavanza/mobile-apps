@@ -1,5 +1,7 @@
 import React, {useState, PureComponent} from 'react'
+import ViewShot from 'react-native-view-shot'
 import Spinner from 'react-native-loading-spinner-overlay'
+import res from './langResouurces'
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,6 +16,8 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native'
+import {I18nManager} from 'react-native'
+I18nManager.allowRTL(false)
 import {Colors} from 'react-native/Libraries/NewAppScreen'
 import axios from 'axios'
 import {RNCamera} from 'react-native-camera'
@@ -21,7 +25,7 @@ import VideoPlayer from 'react-native-video-player'
 
 import Sound from 'react-native-sound'
 import {AudioRecorder, AudioUtils} from 'react-native-audio'
-
+let interval
 var camera = null
 export default class Feedback extends PureComponent {
   constructor (props) {
@@ -29,8 +33,8 @@ export default class Feedback extends PureComponent {
 
     this.state = {
       path: '',
-      label: 'submit',
-      baseURL: 'https://avanza-training.westeurope.cloudapp.azure.com',
+      label: res.resolve('submit', this.props.lang),
+      // baseURL: 'https://avanza-training.westeurope.cloudapp.azure.com',
       camera: {
         type: RNCamera.Constants.Type.back,
         flashMode: RNCamera.Constants.FlashMode.auto,
@@ -40,8 +44,16 @@ export default class Feedback extends PureComponent {
       paused: false,
       stoppedRecording: false,
       finished: false,
-      audioPath: AudioUtils.DocumentDirectoryPath + '/test.wav',
+      audioPath: AudioUtils.DocumentDirectoryPath + '/test.aac',
       hasPermission: undefined,
+      nationality: '',
+      gender: null,
+      emotion: null,
+      confidence: 0,
+      age: '',
+      timer: 60,
+      mtop: 160,
+      allEmotions: [],
     }
 
     // this.audioRecorderPlayer = new AudioRecorderPlayer()
@@ -52,32 +64,15 @@ export default class Feedback extends PureComponent {
       SampleRate: 16000,
       Channels: 1,
       AudioQuality: 'Low',
-      AudioEncoding: 'PCM',
-      AudioEncodingBitRate: 256,
+      AudioEncoding: 'aac',
+      AudioEncodingBitRate: 16000,
     })
   }
   handleAccessToken = async () => {
-    try {
-      let response = await axios.post(
-        `${this.state.baseURL}/login`,
-        {
-          userId: 'admin_core',
-          password:
-            '2bf3e759dba1b4402707738242f46d16a629f85ab34cf9f964290c9a8c578ef9d6a196d31e694104374d82c302c73bf776f2db831fb7434ca27a3c4ddbb64006',
-        },
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-      // console.log(response, 'response------------------->')
-      return response.data.loginResponse.data.token
-    } catch (err) {
-      console.log(err)
-      this.setSubmitLoading(false)
-      this.setTextError('Error in uploading Feedback')
+    console.log(this.state.clientkey, this.state.clientSecret)
+    return {
+      clientkey: this.state.clientkey,
+      clientSecret: this.state.clientSecret,
     }
   }
   setTextError (error) {
@@ -85,13 +80,23 @@ export default class Feedback extends PureComponent {
   }
   componentDidMount () {
     this.setState({
+      isRTL: this.props.lang == 'ar-EG',
       completed: false,
       check: undefined,
       baseURL: this.props.baseURL,
+      clientkey: this.props.clientkey,
+      clientSecret: this.props.clientSecret,
     })
+    if (this.props.type == 'video') {
+      this.setState({mtop: 80})
+    } else if (this.props.type == 'audio') {
+      this.setState({mtop: 160})
+    } else {
+      this.setState({mtop: 160})
+    }
 
     if (this.props.type == 'video') {
-      this.setState({label: 'Start Recording'})
+      this.setState({label: res.resolve('startRecord', this.props.lang)})
     }
     AudioRecorder.requestAuthorization().then(isAuthorised => {
       this.setState({hasPermission: isAuthorised})
@@ -224,14 +229,15 @@ export default class Feedback extends PureComponent {
 
   handleSubmitAudio = async () => {
     this.setTextError(null)
-
-    if (!this.state.stoppedRecording) {
+    if (this.state.currentTime <= 5) {
+      this.setTextError('Audio clip must be more than 5 seconds!')
+      this.setSubmitLoading(false);
+    } else if (!this.state.stoppedRecording) {
       this.setTextError('Please record your audio!')
     } else {
       this.setSubmitLoading(true)
       try {
         let filename = this.state.audioPath.replace(/^.*[\\\/]/, '')
-
         var bodyFormData = new FormData()
         bodyFormData.append('name', filename)
         console.log(this.state.audioPath, filename)
@@ -239,39 +245,65 @@ export default class Feedback extends PureComponent {
         bodyFormData.append('file', {
           name: filename,
           uri: 'file://' + this.state.audioPath,
-          type: 'audio/x-wav',
+          type: 'audio/aac',
         })
         bodyFormData.append('type', 'A')
         bodyFormData.append('orgId', 'AFZ')
-        bodyFormData.append('language', 'en-US')
-        console.log(JSON.stringify(bodyFormData))
+        bodyFormData.append('language', this.props.lang)
+        console.log(JSON.stringify(bodyFormData), this.state.baseURL)
+
         let responseInt = await axios({
           method: 'post',
-          url: `${this.state.baseURL}/API/Feedback/quickFeedback`,
+          url: `${this.state.baseURL}/PUBLIC/Feedback/quickFeedback`,
           data: bodyFormData,
+          timeout: 15000,
           headers: {
             'Content-Type': 'multipart/form-data',
-            token: await this.handleAccessToken(),
+            ...(await this.handleAccessToken()),
           },
         })
-        bodyFormData.append('interactionId', responseInt.data.id)
+        bodyFormData.append('interactionId', responseInt.data.interactionId)
 
-        console.log('upload response', responseInt.data)
+        console.log(
+          'upload response',
+          `${this.state.baseURL}/PUBLIC/Feedback/quickFeedback`,
+          JSON.stringify(responseInt.data),
+        )
         if (responseInt.status == 200) {
-          this.setSubmitLoading(false)
-          this.setInteractionId(responseInt.data.id)
-          await axios({
-            method: 'post',
-            url: `${this.state.baseURL}/API/Feedback/uploadInteraction`,
-            data: bodyFormData,
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              token: await this.handleAccessToken(),
-            },
-          })
+          if (responseInt.data.errorCode && responseInt.data.errorCode == 201) {
+            this.setTextError(responseInt.data.errorDescription)
+            this.setSubmitLoading(false)
+          } else {
+            this.setTextError(null)
+            if (responseInt.data.detectedMajorSentimentAudio) {
+              switch (responseInt.data.detectedMajorSentimentAudio) {
+                case 'negative':
+                  this.setInteractionId(responseInt.data.interactionId, 'Sad')
+                  this.setSubmitLoading(false)
+                  break
+                default:
+                  this.setInteractionId(responseInt.data.interactionId)
+                  this.setSubmitLoading(false)
+                  break
+              }
+            } else {
+              this.setInteractionId(responseInt.data.interactionId)
+              this.setSubmitLoading(false)
+            }
+
+            await axios({
+              method: 'post',
+              url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
+              data: bodyFormData,
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                ...(await this.handleAccessToken()),
+              },
+            })
+          }
         }
       } catch (err) {
-        console.log(err.stack)
+        console.log('audio error------------', err.stack)
         this.setSubmitLoading(false)
         this.setTextError('Error in uploading audio')
       }
@@ -301,8 +333,12 @@ export default class Feedback extends PureComponent {
       console.error(error)
     }
   }
-  setOther (flag) {
-    this.setState({other: flag, check: 'other'})
+  setOther (flag, sentiment) {
+    if (sentiment == 'positive') {
+      this.setState({other: flag, check: 'otherpositive'})
+    } else {
+      this.setState({other: flag, check: 'other'})
+    }
   }
   setCompleted (flag) {
     this.setState({completed: flag})
@@ -334,14 +370,14 @@ export default class Feedback extends PureComponent {
         break
     }
     if (value == 'No') {
-      this.setOther(true)
+      this.setOther(true, userEmotion)
     }
     if (value == 'Yes') {
       try {
         let intId = this.state.interactionId
         let response = await axios({
           method: 'post',
-          url: `${this.state.baseURL}/API/Feedback/submitInteraction`,
+          url: `${this.state.baseURL}/PUBLIC/Feedback/submitInteraction`,
           data: {
             //   ...info,
             type,
@@ -351,14 +387,15 @@ export default class Feedback extends PureComponent {
           },
           headers: {
             'Content-Type': 'application/json',
-            token: await this.handleAccessToken(),
+            ...(await this.handleAccessToken()),
           },
         })
         console.log('Submit response---------------TEXT----->', response)
         if (response.status == 200) {
           this.setSubmitLoading(false)
           this.setCompleted(true)
-          alert('Your Feedback Submitted Successfully!!')
+
+          alert(res.resolve('feedSubmitted', this.props.lang))
           this.props.endFlow()
         }
       } catch (err) {
@@ -371,56 +408,133 @@ export default class Feedback extends PureComponent {
   setSubmitLoading (flag) {
     this.setState({flag: flag})
   }
-  setInteractionId (id) {
+  setInteractionId (id, sentiment = 'Happy') {
     console.log('HAAAAA')
     this.setState({
       interactionId: id,
-      check: 'Happy',
+      check: sentiment,
       type: undefined,
       showUploadVideo: false,
+    })
+  }
+  componentWillUnmount () {
+    clearInterval(interval)
+  }
+  handleFaceCapture = async uri => {
+    try {
+      let filename = uri.replace(/^.*[\\\/]/, '')
+      let bodyFormData = new FormData()
+      bodyFormData.append('file', {
+        name: filename,
+        uri: uri,
+        type: 'image/png',
+      })
+      this.setState({captured: uri})
+      // bodyFormData.append('file', file)
+      let response = await axios({
+        method: 'post',
+        url: `${this.props.baseURL}/PUBLIC/Feedback/faceAttributes`,
+        data: bodyFormData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          ...(await this.handleAccessToken()),
+        },
+      })
+      if (response.status == 200) {
+        console.log(response.data, 'DFFFFFFFFFFFFFFFFFFFFFFFF')
+        if (response.data.faceResponse.length > 0) {
+          this.setState([
+            ...this.state.faceResponses,
+            ...[response.data.faceResponse.faceAttributes],
+          ])
+          aggregateFaceResponses([
+            ...this.state.faceResponses,
+            ...[response.data.faceResponse.faceAttributes],
+          ])
+        }
+      }
+    } catch (err) {
+      console.log('Error in uploading face photo', err.stack)
+    }
+  }
+  aggregateFaceResponses = faceResponses => {
+    let emotion = {
+      negative: 0,
+      positive: 0,
+      neutral: 0,
+    }
+    let confidence = 0
+    let age = 0
+    let gender = null
+    let majorEmotion = null
+
+    faceResponses.forEach(response => {
+      gender = response.gender
+      age += response.age
+      Object.keys(response.emotion).map(o => {
+        if (
+          o == 'anger' ||
+          o == 'contempt' ||
+          o == 'disgust' ||
+          o == 'fear' ||
+          o == 'sadness'
+        ) {
+          emotion['negative'] += response.emotion[o]
+        } else if (o == 'happiness' || o == 'surprise') {
+          emotion['positive'] += response.emotion[o]
+        } else {
+          emotion['neutral'] += response.emotion[o]
+        }
+      })
+    })
+
+    Object.keys(emotion).map(o => {
+      if (emotion[o] / faceResponses.length > confidence) {
+        confidence = emotion[o] / faceResponses.length
+        majorEmotion = o
+      }
+    })
+
+    age = age / faceResponses.length
+
+    console.log({
+      ...info,
+      age,
+      gender,
+      confidence: confidence * 100,
+      emotion: majorEmotion,
+    })
+
+    let allEmotions = [...this.state.allEmotions, ...[majorEmotion]]
+
+    console.log('all Emotions----------->', allEmotions)
+    // setAllEmotions(allEmotions1);
+
+    this.setState({
+      allEmotions,
+      ...info,
+      age,
+      gender,
+      confidence: confidence * 100,
+      emotion: majorEmotion,
     })
   }
   handleSubmit = async () => {
     this.setTextError(null)
 
     if (!this.state.textValue) {
-      this.setTextError('Please enter your feedback')
+      this.setTextError(res.resolve('Fback', this.props.lang))
     } else {
       this.setSubmitLoading(true)
-      let token = await this.handleAccessToken()
       try {
-        let response = await axios({
-          method: 'post',
-          url: `${this.state.baseURL}/API/Feedback/quickFeedback`,
-          data: {
-            type: 'T',
-            orgId: 'AFZ',
-            textData: {
-              documents: [
-                {
-                  id: '1',
-                  text: this.state.textValue,
-                },
-              ],
-            },
-          },
-          headers: {
-            'Content-Type': 'application/json',
-            token: token,
-          },
-        })
-        console.log('text upload response', response)
-        if (response.data) {
-          this.setSubmitLoading(false)
-          this.setTextError(null)
-          this.setInteractionId(response.data.interactionId)
-          await axios({
+        console.log(
+          JSON.stringify({
             method: 'post',
-            url: `${this.state.baseURL}/API/Feedback/uploadInteraction`,
+            url: `${this.state.baseURL}/PUBLIC/Feedback/quickFeedback`,
             data: {
               type: 'T',
               orgId: 'AFZ',
-              interactionId: response.data.interactionId,
+              language: this.props.lang,
               textData: {
                 documents: [
                   {
@@ -432,9 +546,71 @@ export default class Feedback extends PureComponent {
             },
             headers: {
               'Content-Type': 'application/json',
-              token: token,
+              ...(await this.handleAccessToken()),
             },
-          })
+          }),
+        )
+
+        let response = await axios({
+          method: 'post',
+          url: `${this.state.baseURL}/PUBLIC/Feedback/quickFeedback`,
+          data: {
+            type: 'T',
+            orgId: 'AFZ',
+            language: this.props.lang,
+            textData: {
+              documents: [
+                {
+                  id: '1',
+                  text: this.state.textValue,
+                },
+              ],
+            },
+          },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(await this.handleAccessToken()),
+          },
+        })
+
+        if (response.data) {
+          console.log('text upload response', response.data)
+          this.setSubmitLoading(false)
+          if (response.data.errorCode == 201) {
+            this.setTextError(response.data.errorDescription)
+          } else {
+            this.setTextError(null)
+            switch (response.data.detectedMajorSentimentText) {
+              case 'negative':
+                this.setInteractionId(response.data.interactionId, 'Sad')
+                break
+              default:
+                this.setInteractionId(response.data.interactionId)
+                break
+            }
+
+            await axios({
+              method: 'post',
+              url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
+              data: {
+                type: 'T',
+                orgId: 'AFZ',
+                interactionId: response.data.interactionId,
+                textData: {
+                  documents: [
+                    {
+                      id: '1',
+                      text: this.state.textValue,
+                    },
+                  ],
+                },
+              },
+              headers: {
+                'Content-Type': 'application/json',
+                ...(await this.handleAccessToken()),
+              },
+            })
+          }
         }
       } catch (err) {
         console.log(err)
@@ -444,10 +620,6 @@ export default class Feedback extends PureComponent {
     }
   }
   rendertext (type) {
-    // const {recording, processing} = this.state
-    // Toast.show({
-    //   text2: 'This is some something 👋'
-    // });
     console.log('type:->', type)
     switch (type) {
       case 'text':
@@ -457,8 +629,11 @@ export default class Feedback extends PureComponent {
               <TextInput
                 multiline={true}
                 numberOfLines={10}
-                style={styles.textArea}
-                placeholder='Enter your feedback...'
+                style={{
+                  ...styles.textArea,
+                  textAlign: this.state.isRTL ? 'right' : 'left',
+                }}
+                placeholder={res.resolve('EnterFBack', this.props.lang)}
                 onChangeText={textValue => {
                   console.log(textValue)
                   this.setState({textValue})
@@ -485,15 +660,15 @@ export default class Feedback extends PureComponent {
         return (
           <>
             <View style={styles.container}>
-              <View style={{...styles.controls, height: 160}}>
+              <View style={{...styles.controls}}>
                 <TouchableOpacity
                   style={{
-                    width: '50%',
-                    height: '120%',
+                    width: 200,
+                    height: 200,
                     borderRadius: 100,
                     resizeMode: 'contain',
-                    marginTop: 100,
-                    marginLeft: 120,
+                    marginTop: 20,
+                    marginLeft: '0%',
                   }}
                   onPressIn={() => {
                     this._record()
@@ -503,8 +678,8 @@ export default class Feedback extends PureComponent {
                   }}>
                   <Image
                     style={{
-                      width: '50%',
-                      height: '50%',
+                      width: '100%',
+                      height: '100%',
                     }}
                     source={require('../resouces/mic-audio.png')}
                   />
@@ -513,8 +688,9 @@ export default class Feedback extends PureComponent {
                 <View
                   style={{
                     flexDirection: 'row',
-                    position: 'absolute',
-                    top: 140,
+                    // position: 'absolute',
+                    marginTop: 20,
+                    // top: 140,
                   }}>
                   {!this.state.isPlaying && (
                     <Text style={styles.progressText}>
@@ -529,7 +705,7 @@ export default class Feedback extends PureComponent {
                   />
                   {!this.state.isPlaying && (
                     <Button
-                      title={'  Play  '}
+                      title={res.resolve('Play', this.props.lang)}
                       color='rgb(94, 212, 228);'
                       onPress={() => {
                         // this.setState({isAudio: true, transparent: false})
@@ -539,100 +715,108 @@ export default class Feedback extends PureComponent {
                     />
                   )}
                   {this.state.isPlaying && (
-                    <Text style={styles.progressText}>Audio is playing!!</Text>
+                    <Text style={styles.progressText}>
+                      {' '}
+                      {res.resolve('audPlaying', this.props.lang)}
+                    </Text>
                   )}
                 </View>
               </View>
-              <Text style={{color: 'red', fontStyle: 'italic'}}>
+              <Text style={{color: 'red', fontStyle: 'italic', padding: 22}}>
                 {this.state.error}
               </Text>
+              {this.props.lang == 'en-US' && (
+                <Text
+                  style={{
+                    color: 'grey',
+                    fontStyle: 'italic',
+                    fontSize: 12,
+                    padding: 22,
+                  }}>
+                  I consent usage of this recorded data for the purpose of
+                  quality assurance for the Department of Digital Ajman.
+                </Text>
+              )}
+              {this.props.lang == 'ar-EG' && (
+                <Text
+                  style={{
+                    color: 'grey',
+                    fontStyle: 'italic',
+                    fontSize: 12,
+                    padding: 22,
+                  }}>
+                  أوافق على استخدام هذه البيانات المسجلة لغرض ضمان الجودة لدائرة
+                  عجمان الرقمية
+                </Text>
+              )}
             </View>
           </>
         )
       case 'video':
         return (
           <>
-            <View styles={{flex: 1}}>
-              <RNCamera
-                ref={ref => {
-                  camera = ref
-                }}
-                defaultTouchToFocus
-                flashMode={this.state.camera.flashMode}
-                mirrorImage={false}
-                onFocusChanged={() => {}}
-                onZoomChanged={() => {}}
-                onCameraReady={res => console.log(res)}
-                style={{flex: 1, height: 100, margin: 100}}
-                type={RNCamera.Constants.Type.back}
-                androidCameraPermissionOptions={{
-                  title: 'Permission to use camera',
-                  message: 'We need your permission to use your camera',
-                  buttonPositive: 'Ok',
-                  buttonNegative: 'Cancel',
-                }}
-              />
-              <Text style={{color: 'red', fontStyle: 'italic'}}>
-                {this.state.error}
-              </Text>
-            </View>
+            <ViewShot ref='viewShot' options={{format: 'png', quality: 0.9}}>
+              <View styles={{flex: 1}}>
+                <RNCamera
+                  ref={ref => {
+                    camera = ref
+                  }}
+                  defaultTouchToFocus
+                  flashMode={this.state.camera.flashMode}
+                  mirrorImage={false}
+                  onFocusChanged={() => {}}
+                  onZoomChanged={() => {}}
+                  onCameraReady={res => console.log(res)}
+                  style={{
+                    // flex: 1,
+                    height: Dimensions.get('window').height * 0.5,
+                    width: Dimensions.get('window').width * 0.5,
+                    marginTop: 25,
+                    marginLeft: Dimensions.get('window').width * 0.21,
+                    borderColor: 'rgba(0, 0, 0, 0.3)',
+                    borderWidth: 0,
+                    borderRadius: 1,
+                  }}
+                  type={RNCamera.Constants.Type.front}
+                  androidCameraPermissionOptions={{
+                    title: 'Permission to use camera',
+                    message: 'We need your permission to use your camera',
+                    buttonPositive: 'Ok',
+                    buttonNegative: 'Cancel',
+                  }}
+                />
+                <Text style={{color: 'red', fontStyle: 'italic'}}>
+                  {this.state.error}
+                </Text>
+                {this.props.lang == 'en-US' && (
+                  <Text
+                    style={{
+                      color: 'grey',
+                      fontStyle: 'italic',
+                      fontSize: 12,
+                      padding: 22,
+                    }}>
+                    I consent usage of this recorded data for the purpose of
+                    quality assurance for the Department of Digital Ajman.
+                  </Text>
+                )}
+                {this.props.lang == 'ar-EG' && (
+                  <Text
+                    style={{
+                      color: 'grey',
+                      fontStyle: 'italic',
+                      fontSize: 12,
+                      padding: 22,
+                    }}>
+                    أوافق على استخدام هذه البيانات المسجلة لغرض ضمان الجودة
+                    لدائرة عجمان الرقمية
+                  </Text>
+                )}
+              </View>
+            </ViewShot>
           </>
         )
       case 'Happy':
-        return (
-          <>
-            <View style={styles.container}>
-              <View style={styles.controls}>
-                <Text
-                  style={{
-                    fontSize: 17,
-                    // fontWeight: 900
-                  }}>
-                  Satisfied with our services?
-                </Text>
-                <Image
-                  style={styles.image}
-                  source={
-                    this.props.gender == 'female'
-                      ? require('../resouces/woman-smile1.png')
-                      : require('../resouces/man-smile1.png')
-                  }
-                />
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  position: 'absolute',
-                  width: Dimensions.get('window').width * 1,
-                  display: 'flex',
-                  top: Dimensions.get('window').height * 0.3,
-                  alignItems: 'center',
-                }}>
-                <Button
-                  title={'  Yes  '}
-                  color='rgb(23, 98, 184)'
-                  onPress={() => this.handleSatisfaction('Yes', 'positive')}
-                  disabled={this.state.disabledVid}
-                />
-                <View
-                  style={{
-                    width: 10,
-                    height: 10,
-                  }}
-                />
-                <Button
-                  title={'   NO   '}
-                  color='rgb(94, 212, 228)'
-                  onPress={() => this.handleSatisfaction('No')}
-                  disabled={this.state.disabledVid}
-                />
-              </View>
-            </View>
-          </>
-        )
-      case 'other':
         // case 'text':
         return (
           <>
@@ -643,7 +827,135 @@ export default class Feedback extends PureComponent {
                     fontSize: 17,
                     // fontWeight: 900
                   }}>
-                  Provide Your Feedback
+                  {res.resolve('satisfied', this.props.lang)}
+                </Text>
+                <Image
+                  style={styles.image}
+                  source={
+                    this.props.gender == 'female'
+                      ? require('../resouces/woman-smile1.png')
+                      : require('../resouces/man-smile1.png')
+                  }
+                />
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'centxer',
+                    // position: 'absolute',
+                    width: Dimensions.get('window').width * 1,
+                    height: 20,
+                    marginTop: -50,
+                    // display: 'flex',
+                    // top: Dimensions.get('window').height * 0.30,
+                    alignItems: 'center',
+                  }}>
+                  <Button
+                    title={'  Yes  '}
+                    color='rgb(23, 98, 184)'
+                    onPress={() => this.handleSatisfaction('Yes', 'positive')}
+                    disabled={this.state.disabledVid}
+                  />
+                  <View
+                    style={{
+                      width: 10,
+                      height: 10,
+                    }}
+                  />
+                  <Button
+                    title={'   NO   '}
+                    color='rgb(94, 212, 228)'
+                    onPress={() => this.handleSatisfaction('No', 'negative')}
+                    disabled={this.state.disabledVid}
+                  />
+                </View>
+              </View>
+              <View
+                style={{
+                  width: 10,
+                  height: 20,
+                }}
+              />
+            </View>
+          </>
+        )
+      case 'Sad':
+        // case 'text':
+        return (
+          <>
+            <View style={styles.container}>
+              <View style={styles.controls}>
+                <Text
+                  style={{
+                    fontSize: 17,
+                    // fontWeight: 900
+                  }}>
+                  {res.resolve('unsatisfied', this.props.lang)}
+                </Text>
+                <Image
+                  style={styles.image}
+                  source={
+                    this.props.gender == 'female'
+                      ? require('../resouces/woman-smile3.png')
+                      : require('../resouces/man-smile3.png')
+                  }
+                />
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'centxer',
+                    // position: 'absolute',
+                    width: Dimensions.get('window').width * 1,
+                    height: 20,
+                    marginTop: -50,
+                    // display: 'flex',
+                    // top: Dimensions.get('window').height * 0.30,
+                    alignItems: 'center',
+                  }}>
+                  <Button
+                    title={'  Yes  '}
+                    color='rgb(23, 98, 184)'
+                    onPress={() => this.handleSatisfaction('Yes', 'negative')}
+                    disabled={this.state.disabledVid}
+                  />
+                  <View
+                    style={{
+                      width: 10,
+                      height: 10,
+                    }}
+                  />
+                  <Button
+                    title={'   NO   '}
+                    color='rgb(94, 212, 228)'
+                    onPress={() => this.handleSatisfaction('No', 'positive')}
+                    disabled={this.state.disabledVid}
+                  />
+                </View>
+              </View>
+              <View
+                style={{
+                  width: 10,
+                  height: 20,
+                }}
+              />
+            </View>
+          </>
+        )
+      case 'other':
+        // case 'text':
+        return (
+          <>
+            <View style={styles.container}>
+              <View style={{...styles.controls}}>
+                <Text
+                  style={{
+                    fontSize: 17,
+                    // fontWeight: 900
+                  }}>
+                  {res.resolve('providefeed', this.props.lang)}
                 </Text>
                 {/* <Image
                   style={styles.image}
@@ -656,6 +968,7 @@ export default class Feedback extends PureComponent {
                   flexDirection: 'row',
                   justifyContent: 'center',
                   alignItems: 'center',
+                  height: 210,
                 }}>
                 <View style={{width: 150, height: 150, textAlign: 'center'}}>
                   <TouchableOpacity
@@ -675,9 +988,9 @@ export default class Feedback extends PureComponent {
                     />
                     <Text
                       style={{
-                        marginLeft: 57,
+                        marginLeft: Dimensions.get('window').width * 0.14,
                       }}>
-                      neutral
+                      {res.resolve('ok', this.props.lang)}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -705,9 +1018,102 @@ export default class Feedback extends PureComponent {
                     />
                     <Text
                       style={{
-                        marginLeft: 65,
+                        marginLeft: Dimensions.get('window').width * 0.1,
+                        height: 20,
                       }}>
-                      sad
+                      {res.resolve('sad', this.props.lang)}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View
+                style={{
+                  width: 10,
+                  height: 20,
+                }}
+              />
+            </View>
+          </>
+        )
+      case 'otherpositive':
+        // case 'text':
+        return (
+          <>
+            <View style={styles.container}>
+              <View style={styles.controls}>
+                <Text
+                  style={{
+                    fontSize: 17,
+                    // fontWeight: 900
+                  }}>
+                  {res.resolve('providefeed', this.props.lang)}
+                </Text>
+                {/* <Image
+                    style={styles.image}
+                    source={require('../resouces/man-smile1.png')}
+                  /> */}
+              </View>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: 210,
+                }}>
+                <View style={{width: 150, height: 150, textAlign: 'center'}}>
+                  <TouchableOpacity
+                    onPress={() => this.handleSatisfaction('Yes', 'happy')}>
+                    <Image
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: 100,
+                        resizeMode: 'contain',
+                      }}
+                      source={
+                        this.props.gender == 'female'
+                          ? require('../resouces/woman-smile1.png')
+                          : require('../resouces/man-smile1.png')
+                      }
+                    />
+                    <Text
+                      style={{
+                        marginLeft: 52,
+                        height: 20,
+                      }}>
+                      {res.resolve('happy', this.props.lang)}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View
+                  style={{
+                    width: 10,
+                    height: 10,
+                  }}
+                />
+                <View style={{width: 150, height: 150}}>
+                  <TouchableOpacity
+                    onPress={() => this.handleSatisfaction('Yes', 'negative')}>
+                    <Image
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: 100,
+                        resizeMode: 'contain',
+                      }}
+                      source={
+                        this.props.gender == 'female'
+                          ? require('../resouces/woman-smile2.png')
+                          : require('../resouces/man-smile2.png')
+                      }
+                    />
+                    <Text
+                      style={{
+                        marginLeft: 60,
+                        height: 20,
+                      }}>
+                      {res.resolve('ok', this.props.lang)}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -729,24 +1135,56 @@ export default class Feedback extends PureComponent {
     if (this.state.showUploadVideo == true) {
       this.setState({
         type: 'video',
-        label: 'Start Recording',
+        label: res.resolve('startRecord', this.props.lang),
         showUploadVideo: false,
       })
     } else if (!this.state.recording) {
-      this.setState({recording: true, label: 'Stop Recording'})
+      this.setState({
+        recording: true,
+        timer: 20,
+      })
       // default to mp4 for android as codec is not set
       console.log('i am here')
+      interval = setInterval(
+        (() => {
+          if (this.state.timer % 5 == 0) {
+            this.refs.viewShot.capture().then(uri => {
+              if (uri) {
+                console.log('captured ', uri)
+                this.handleFaceCapture(uri)
+              } else {
+                clearInterval(interval)
+              }
+            })
+            // this.handleFaceCapture()
+          }
+          if (this.state.timer == 0) {
+            clearInterval(interval)
+            this.stopRecording()
+          } else {
+            console.log(this.state.timer - 1)
+            this.setState({
+              timer: this.state.timer - 1,
+              label: `${res.resolve('StopRecording', this.props.lang)} (${
+                this.state.timer
+              })`,
+            })
+          }
+        }).bind(this),
+        1000,
+      )
       const {uri, codec = 'mp4'} = await camera.recordAsync()
       console.log('URI>>>>>>', uri)
 
       this.setState({
         uri,
         type: 'player',
-        label: 'Re-Record',
+        label: res.resolve('ReRecord', this.props.lang),
         recording: false,
         showUploadVideo: true,
       })
     } else {
+      clearInterval(interval)
       this.stopRecording()
     }
   }
@@ -759,61 +1197,131 @@ export default class Feedback extends PureComponent {
   }
   switchText () {
     console.log('stopped')
-    this.setState({type: 'text'})
+    this.setState({type: 'text', mtop: 160})
   }
   switchVideo () {
     console.log('stopped')
     // camera = null
-    this.setState({type: 'video', recording: false, label: 'Start Recording'})
+    this.setState({
+      type: 'video',
+      recording: false,
+      mtop: 80,
+      label: res.resolve('startRecord', this.props.lang),
+    })
     console.log('stopped', JSON.stringify(this.state))
   }
   switchAudio () {
     console.log('stopped')
-    this.setState({type: 'audio'})
+    this.setState({type: 'audio', mtop: 160})
   }
   setRecorded (flag) {
     this.setState({showUploadVideo: flag})
   }
-
   handleSubmitVideo = async () => {
     this.setTextError(null)
-
     if (!this.state.showUploadVideo) {
       this.setTextError('Please record your video first!')
     } else {
+      this.setSubmitLoading(true)
       try {
-        var bodyFormData = new FormData()
-        let filename = this.state.uri.replace(/^.*[\\\/]/, '')
-        // uri: Platform.OS === 'android' ? image.uri : image.uri.replace('file://', ''),
-        bodyFormData.append('name', this.state.uri)
-        console.log()
+        let bodyFormData = new FormData()
+        // bodyFormData.append('file', captured);
+        let filename = this.state.captured.replace(/^.*[\\\/]/, '')
         bodyFormData.append('file', {
           name: filename,
-          uri: this.state.uri,
-          type: 'video/mp4',
+          uri: this.state.captured,
+          type: 'image/png',
         })
         bodyFormData.append('type', 'V')
-        bodyFormData.append('orgId', 'AFZ')
-        console.log('Request Sent!!')
+
         let response = await axios({
           method: 'post',
-          url: `${this.state.baseURL}/API/Feedback/uploadInteraction`,
+          url: `${this.state.baseURL}/PUBLIC/Feedback/quickFeedback`,
           data: bodyFormData,
           headers: {
+            ...(await this.handleAccessToken()),
             'Content-Type': 'multipart/form-data',
-            token: await this.handleAccessToken(),
           },
         })
-        console.log('Response Recived')
-        console.log('upload response>>>>|||>>>>>', response)
+
         if (response.status == 200) {
-          console.log('>>>>>>>>>>>>>>>>>>>>>>>>check status!!!!!!!?>>>>')
-          this.setSubmitLoading(false)
-          this.setRecorded(false)
-          this.setInteractionId(response.data.id)
+          console.log(
+            response.data,
+            'DFFFFFFFFFFFFFFFFFFFFFFFF',
+            JSON.stringify(bodyFormData),
+          )
+          if (!this.state.allEmotions.length) {
+            let allEmotions = [response.data.emotion]
+            this.setState({
+              allEmotions,
+              ...this.state.info,
+              age: response.data.age,
+              gender: response.data.gender,
+              emotion: response.data.emotion,
+            })
+          }
+
+          try {
+            var bodyFormData1 = new FormData()
+            // bodyFormData1.append('name', fileName)
+            // bodyFormData1.append('file', videoFile)
+            // bodyFormData1.append('type', 'V')
+            let filename = this.state.uri.replace(/^.*[\\\/]/, '')
+            // uri: Platform.OS === 'android' ? image.uri : image.uri.replace('file://', ''),
+            bodyFormData1.append('name', filename)
+            bodyFormData1.append('file', {
+              name: filename,
+              uri: this.state.uri,
+              type: 'video/mp4',
+            })
+            bodyFormData1.append('orgId', 'AFZ')
+            bodyFormData1.append('type', 'V')
+            bodyFormData1.append('language', this.props.lang)
+
+            bodyFormData1.append('interactionId', response.data.interactionId)
+
+            this.setRecorded(false)
+            console.log(
+              JSON.stringify({
+                method: 'post',
+                url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
+                data: bodyFormData1,
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                  ...(await this.handleAccessToken()),
+                },
+              }),
+            )
+            let response1 = await axios({
+              method: 'post',
+              url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
+              data: bodyFormData1,
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                ...(await this.handleAccessToken()),
+              },
+            })
+            if (this.state.allEmotions.includes('negative')) {
+              this.setState({...info, emotion: 'negative'})
+              this.setInteractionId(response.data.interactionId, 'Sad')
+            }
+            if (
+              this.state.allEmotions.includes('positive') &&
+              this.state.allEmotions.includes('neutral') &&
+              !this.state.allEmotions.includes('negative')
+            ) {
+              this.setState({...info, emotion: 'positive'})
+              this.setInteractionId(response.data.interactionId)
+            }
+            this.setSubmitLoading(false)
+            this.setInteractionId(response.data.interactionId)
+            console.log('upload response', response1)
+          } catch (err) {
+            console.log('Error in uploading Video first', err)
+          }
         }
       } catch (err) {
-        console.log(err)
+        console.log('Error in uploading Video second', err)
         this.setSubmitLoading(false)
         this.setTextError('Error in uploading video')
       }
@@ -831,7 +1339,7 @@ export default class Feedback extends PureComponent {
           overlayColor='#00336777'
         />
         <StatusBar barStyle='dark-content' />
-        <SafeAreaView style={{marginTop: 160}}>
+        <SafeAreaView style={{marginTop: this.state.mtop}}>
           <ScrollView
             contentInsetAdjustmentBehavior='automatic'
             style={styles.scrollView}>
@@ -845,25 +1353,23 @@ export default class Feedback extends PureComponent {
                 padding: 0,
                 // borderStyle: 'solid',
                 borderRadius: 10,
-                width: 370,
+                width: Dimensions.get('window').width * 0.93,
               }}>
-              <View style={{flexDirection: 'row'}}>
-                <Text
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: this.state.isRTL ? 'row' : 'row-reverse',
+                }}>
+                <View
                   style={{
-                    padding: 10,
-                    fontSize: 20,
-                    textAlign: 'left',
-                    // color: 'rgb(94, 212, 228);',
-                    color: 'rgb(23, 98, 184)',
+                    width: '10%',
+                    height: 50,
+                    // backgroundColor: 'powderblue',
                   }}>
-                  {'Suggestions & Feedback'}
-                </Text>
-
-                <View>
                   <TouchableOpacity
                     style={{
                       top: 7,
-                      left: 85,
+                      left: this.state.isRTL ? 10 : 0,
                     }}
                     onPress={() => {
                       this.props.endFlow()
@@ -879,6 +1385,21 @@ export default class Feedback extends PureComponent {
                     />
                   </TouchableOpacity>
                 </View>
+                <View
+                  style={{
+                    width: '90%',
+                    height: 50,
+                    right: this.state.isRTL ? 10 : 0,
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      top: 10,
+                      left: this.state.isRTL ? 0 : 10,
+                    }}>
+                    {res.resolve('snf', this.props.lang)}
+                  </Text>
+                </View>
               </View>
               <View
                 style={{
@@ -886,6 +1407,7 @@ export default class Feedback extends PureComponent {
                   borderBottomWidth: 1,
                 }}
               />
+
               {this.rendertext(
                 this.state.type || this.state.check || this.props.type,
               )}
@@ -909,7 +1431,7 @@ export default class Feedback extends PureComponent {
                   !this.state.completed && (
                     <View style={{flex: 1, padding: 10}}>
                       <Button
-                        title='Submit Feedback'
+                        title={res.resolve('submitFeedback', this.props.lang)}
                         color='rgb(23, 98, 184);'
                         onPress={this.handleSubmitAudio.bind(this)}
                         style={styles.buttonFrm}
@@ -935,11 +1457,12 @@ export default class Feedback extends PureComponent {
                   !this.state.completed && (
                     <View style={{flex: 1, padding: 10}}>
                       <Button
-                        title={'Submit Feedback'}
+                        title={res.resolve('submitFeedback', this.props.lang)}
                         color='rgb(23, 98, 184);'
                         onPress={this.handleSubmitVideo.bind(this)}
                         disabled={this.state.disabledVid}
                         style={styles.buttonFrm}
+                        ć
                       />
                     </View>
                   )}
@@ -1028,7 +1551,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: 300,
-    height: 295,
+    height: 285,
     marginTop: -50,
     // marginLeft: -25,
     transform: [{scale: 0.5}],

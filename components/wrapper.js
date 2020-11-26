@@ -8,9 +8,10 @@ import {
   Modal,
   Dimensions,
 } from 'react-native'
+import res from './langResouurces'
 import {Colors} from 'react-native/Libraries/NewAppScreen'
 import Feedback from './feedback.js'
- 
+
 export default class Wrapper extends Component {
   // initial state
   state = {
@@ -52,6 +53,9 @@ export default class Wrapper extends Component {
           source={require('../resouces/drawer.png')}
           style={styles.image}
         />
+        <Text style={styles.imageTextExp}>
+          {res.resolve('exp', this.props.lang)}
+        </Text>
         <View style={styles.imageText}>
           <TouchableOpacity
             onPress={() => {
@@ -105,13 +109,13 @@ export default class Wrapper extends Component {
     )
   }
 
-  render () {
+  render() {
     return (
       <View style={styles.container}>
         <Image
           style={{
-            width: '150%',
-            height: '50%',
+            width: Dimensions.get('window').width * 1.5,
+            height: Dimensions.get('window').height * 0.5,
             top: 0,
             // borderRadius: 100,
             resizeMode: 'contain',
@@ -140,7 +144,15 @@ export default class Wrapper extends Component {
                 justifyContent: 'center',
                 backgroundColor: 'rgba(0,0,0,0.5)',
               }}>
-              <Feedback type='video' gender={this.props.gender} baseURL={this.props.api} endFlow={this.endFlow.bind(this)} />
+              <Feedback
+                type='video'
+                gender={this.props.gender}
+                baseURL={this.props.api}
+                lang={this.props.lang}
+                endFlow={this.endFlow.bind(this)}
+                clientkey={this.props.clientkey}
+                clientSecret={this.props.clientSecret}
+              />
             </View>
           )}
 
@@ -152,7 +164,15 @@ export default class Wrapper extends Component {
                 justifyContent: 'center',
                 backgroundColor: 'rgba(0,0,0,0.5)',
               }}>
-              <Feedback type='audio' gender={this.props.gender}  baseURL={this.props.api}  endFlow={this.endFlow.bind(this)} />
+              <Feedback
+                type='audio'
+                gender={this.props.gender}
+                baseURL={this.props.api}
+                lang={this.props.lang}
+                endFlow={this.endFlow.bind(this)}
+                clientkey={this.props.clientkey}
+                clientSecret={this.props.clientSecret}
+              />
             </View>
           )}
           {this.state.isText && (
@@ -163,7 +183,15 @@ export default class Wrapper extends Component {
                 justifyContent: 'center',
                 backgroundColor: 'rgba(0, 0, 0, 0.87)',
               }}>
-              <Feedback type='text' gender={this.props.gender}  baseURL={this.props.api}  endFlow={this.endFlow.bind(this)} />
+              <Feedback
+                type='text'
+                gender={this.props.gender}
+                baseURL={this.props.api}
+                lang={this.props.lang}
+                endFlow={this.endFlow.bind(this)}
+                clientkey={this.props.clientkey}
+                clientSecret={this.props.clientSecret}
+              />
             </View>
           )}
         </Modal>
@@ -171,10 +199,10 @@ export default class Wrapper extends Component {
           <TouchableOpacity
             // style={styles.button}
             style={{
-              width: '100%',
-              height: '50%',
-              top: 450,
-              left: 350,
+              width: Dimensions.get('window').width,
+              height: Dimensions.get('window').height * 0.5,
+              top: Dimensions.get('window').height * 0.75,
+              left: Dimensions.get('window').width * 0.88,
               right: 0,
               visible: false,
               // borderRadius: 100,
@@ -242,11 +270,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
   image: {
-    marginTop: 0,
+    marginTop: -50,
     marginBottom: 10,
     right: 0,
-    left: 105,
-    resizeMode: 'contain',
+    left: Dimensions.get('window').width * 0.32,
+    // resizeMode: 'contain',
     // width: '130%',
     // height: '100%',
   },
@@ -275,10 +303,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     marginTop: 20,
     // top: 310,
-    top: Dimensions.get('window').height * 0.5,
+    top: Dimensions.get('window').height * 0.4,
     bottom: 310,
     left: 140,
     right: 185,
+    left: Dimensions.get('window').width * 0.4,
+    right: Dimensions.get('window').width * 0.4,
     opacity: 1,
     flex: 1,
     width: 60,
@@ -289,11 +319,13 @@ const styles = StyleSheet.create({
   imageAudio: {
     position: 'absolute',
     marginTop: 20,
-    top: Dimensions.get('window').height * 0.5,
+    top: Dimensions.get('window').height * 0.4,
     // top: 310,
     bottom: 310,
-    left: 220,
-    right: 105,
+    // left: 220,
+    // right: 105,
+    left: Dimensions.get('window').width * 0.6,
+    right: Dimensions.get('window').width * 0.2,
     opacity: 1,
     // flex: 1,
     width: 60,
@@ -305,15 +337,35 @@ const styles = StyleSheet.create({
     position: 'absolute',
     marginTop: 20,
     // top: 310,
-    top: Dimensions.get('window').height * 0.5,
+    top: Dimensions.get('window').height * 0.4,
     bottom: 310,
     // left: 240,
     // right: 85,
-    left: 300,
-    right: 25,
+    left: Dimensions.get('window').width * 0.8,
+    right: Dimensions.get('window').width * 0.2,
     opacity: 1,
     flex: 1,
     width: 60,
+    height: 60,
+    resizeMode: 'contain',
+    borderRadius: 100,
+  },
+  imageTextExp: {
+    position: 'absolute',
+    marginTop: 20,
+    // top: 310,
+    top: Dimensions.get('window').height * 0.35,
+    bottom: 310,
+    // left: 240,
+    // right: 85,
+    fontSize: 16,
+    left: Dimensions.get('window').width * 0.44,
+    color: '#FFF',
+    fontWeight: 'bold',
+    // right: Dimensions.get('window').width * 0.1,
+    opacity: 1,
+    flex: 1,
+    width: 210,
     height: 60,
     resizeMode: 'contain',
     borderRadius: 100,
