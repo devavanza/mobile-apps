@@ -640,10 +640,13 @@ export default class Feedback extends PureComponent {
                   ...styles.textArea,
                   textAlign: this.state.isRTL ? 'right' : 'left',
                 }}
+                value={this.state.textValue}
                 placeholder={res.resolve('EnterFBack', this.props.lang)}
                 onChangeText={textValue => {
-                  console.log(textValue)
-                  this.setState({textValue})
+                  console.log(String(this.state.textValue).length)
+                  if (String(this.state.textValue).length < 500) {
+                    this.setState({textValue})
+                  }
                 }}
               />
               <Text style={{color: 'grey', fontStyle: 'italic'}}>
@@ -1140,7 +1143,7 @@ export default class Feedback extends PureComponent {
                       height: 10,
                     }}
                   />
-                  
+
                   <Button
                     title={res.resolve('no', this.props.lang)}
                     color='rgb(94, 212, 228)'
