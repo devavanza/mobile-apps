@@ -10,11 +10,14 @@ import {
   Text,
   TextInput,
   Image,
+  CheckBox,
   StatusBar,
   Button,
   TouchableHighlight,
   Dimensions,
   TouchableOpacity,
+  Picker,
+  Alert,
 } from 'react-native'
 
 import {Colors} from 'react-native/Libraries/NewAppScreen'
@@ -51,6 +54,7 @@ export default class Feedback extends PureComponent {
       age: '',
       timer: 60,
       mtop: 160,
+      textValue: '',
       allEmotions: [],
     }
 
@@ -80,6 +84,7 @@ export default class Feedback extends PureComponent {
     this.setState({
       isRTL: this.props.lang == 'ar-EG',
       completed: false,
+      selectedValue: this.props.lang,
       check: undefined,
       baseURL: this.props.baseURL,
       clientkey: this.props.clientkey,
@@ -228,10 +233,10 @@ export default class Feedback extends PureComponent {
   handleSubmitAudio = async () => {
     this.setTextError(null)
     if (this.state.currentTime <= 5) {
-      this.setTextError('Audio clip must be more than 5 seconds!')
+      this.setTextError(res.resolve('SecAud', this.props.lang))
       this.setSubmitLoading(false)
     } else if (!this.state.stoppedRecording) {
-      this.setTextError('Please record your audio!')
+      this.setTextError(res.resolve('PRA', this.props.lang))
     } else {
       this.setSubmitLoading(true)
       try {
@@ -247,7 +252,7 @@ export default class Feedback extends PureComponent {
         })
         bodyFormData.append('type', 'A')
         bodyFormData.append('orgId', 'AFZ')
-        bodyFormData.append('language', this.props.lang)
+        bodyFormData.append('language', this.state.selectedValue)
         console.log(JSON.stringify(bodyFormData), this.state.baseURL)
 
         let responseInt = await axios({
@@ -303,7 +308,7 @@ export default class Feedback extends PureComponent {
       } catch (err) {
         console.log('audio error------------', err.stack)
         this.setSubmitLoading(false)
-        this.setTextError('Error in uploading audio')
+        this.setTextError(res.resolve('ERECA', this.props.lang))
       }
     }
   }
@@ -392,12 +397,17 @@ export default class Feedback extends PureComponent {
         if (response.status == 200) {
           this.setSubmitLoading(false)
           this.setCompleted(true)
-
-          alert(res.resolve('feedSubmitted', this.props.lang))
+          Alert.alert(
+            res.resolve('alert', this.props.lang),
+            res.resolve('feedSubmitted', this.props.lang),
+          )
           this.props.endFlow()
         }
       } catch (err) {
-        alert('Error in Submitting Feedback')
+        Alert.alert(
+          res.resolve('alert', this.props.lang),
+          res.resolve('feedSubmittedErr', this.props.lang),
+        )
         this.setSubmitLoading(false)
       }
     }
@@ -532,7 +542,7 @@ export default class Feedback extends PureComponent {
             data: {
               type: 'T',
               orgId: 'AFZ',
-              language: this.props.lang,
+              language: this.state.selectedValue,
               textData: {
                 documents: [
                   {
@@ -555,7 +565,7 @@ export default class Feedback extends PureComponent {
           data: {
             type: 'T',
             orgId: 'AFZ',
-            language: this.props.lang,
+            language: this.state.selectedValue,
             textData: {
               documents: [
                 {
@@ -618,7 +628,6 @@ export default class Feedback extends PureComponent {
     }
   }
   rendertext (type) {
-    console.log('type:->', type)
     switch (type) {
       case 'text':
         return (
@@ -637,9 +646,15 @@ export default class Feedback extends PureComponent {
                   this.setState({textValue})
                 }}
               />
-              <Text style={{color: 'red', fontStyle: 'italic'}}>
-                {this.state.error}
+              <Text style={{color: 'grey', fontStyle: 'italic'}}>
+                {500 - String(this.state.textValue).length}{' '}
+                {res.resolve('CRemain', this.props.lang)}
               </Text>
+              {this.state.error && (
+                <Text style={{color: 'red', fontStyle: 'italic'}}>
+                  {this.state.error}
+                </Text>
+              )}
             </View>
           </>
         )
@@ -655,6 +670,58 @@ export default class Feedback extends PureComponent {
             <Text style={{color: 'red', fontStyle: 'italic'}}>
               {this.state.error}
             </Text>
+            {this.props.lang == 'en-US' && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  left: 10,
+                }}>
+                <CheckBox
+                  value={this.state.isSelected}
+                  onValueChange={vaue => {
+                    this.setState({isSelected: vaue})
+                  }}
+                  // style={styles.checkbox}
+                />
+                <Text
+                  style={{
+                    color: 'grey',
+                    fontStyle: 'italic',
+                    fontSize: 12,
+                    width: Dimensions.get('window').width * 0.7,
+                    // padding: 22,
+                  }}>
+                  I consent usage of this recorded data for the purpose of
+                  quality assurance for the Department of Digital Ajman.
+                </Text>
+              </View>
+            )}
+            {this.props.lang == 'ar-EG' && (
+              <View
+                style={{
+                  flexDirection: 'row-reverse',
+                  right: 10,
+                }}>
+                <CheckBox
+                  value={this.state.isSelected}
+                  onValueChange={vaue => {
+                    this.setState({isSelected: vaue})
+                  }}
+                  style={{top: 3}}
+                />
+                <Text
+                  style={{
+                    color: 'grey',
+                    // fontStyle: 'italic',
+                    fontSize: 15,
+                    width: Dimensions.get('window').width * 0.7,
+                    // padding: 22,
+                  }}>
+                  أوافق على استخدام هذه البيانات المسجلة لغرض ضمان الجودة لدائرة
+                  عجمان الرقمية
+                </Text>
+              </View>
+            )}
           </View>
         )
       case 'audio':
@@ -662,13 +729,63 @@ export default class Feedback extends PureComponent {
           <>
             <View style={styles.container}>
               <View style={{...styles.controls}}>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: 'grey',
+                    // fontStyle: 'italic',
+                    padding: 5,
+                    fontSize: 15,
+                  }}>
+                  {res.resolve('HNR', this.props.lang)}
+                  <View
+                    style={{
+                      width: '20%',
+                      height: 15,
+                      top: -3,
+                      flexDirection: 'row',
+                      // transform: [{ scale: 1 }],
+                      alignItems: 'center',
+                    }}>
+                    {this.props.type != 'text' && (
+                      <Picker
+                        selectedValue={this.state.selectedValue}
+                        // mode='dropdown'
+                        style={{
+                          height: 20,
+                          width: 120,
+                          left: this.props.lang == 'ar-EG' ? 20 : 0,
+                          color: '#0054ad',
+                          borderColor: '#333',
+                          backgroundColor: 'transparent',
+                        }}
+                        onValueChange={(itemValue, itemIndex) => {
+                          console.log(itemValue)
+                          this.setState({selectedValue: itemValue})
+                        }}>
+                        <Picker.Item
+                          label={res.resolve('AR', this.props.lang)}
+                          value='ar-EG'
+                        />
+                        <Picker.Item
+                          label={res.resolve('English', this.props.lang)}
+                          value='en-US'
+                        />
+                        <Picker.Item
+                          label={res.resolve('Urdu', this.props.lang)}
+                          value='hi-IN'
+                        />
+                      </Picker>
+                    )}
+                  </View>
+                </Text>
                 <TouchableOpacity
                   style={{
                     width: 200,
                     height: 200,
                     borderRadius: 100,
                     resizeMode: 'contain',
-                    marginTop: 20,
+                    marginTop: 5,
                     marginLeft: '0%',
                   }}
                   onPressIn={() => {
@@ -689,19 +806,21 @@ export default class Feedback extends PureComponent {
                 <View
                   style={{
                     flexDirection: 'row',
-                    // position: 'absolute',
-                    marginTop: 20,
-                    // top: 140,
+                    left: 0,
                   }}>
                   {!this.state.isPlaying && (
                     <Text style={styles.progressText}>
-                      {this.state.currentTime + ' s'}
+                      {60 -
+                        this.state.currentTime +
+                        ' ' +
+                        res.resolve('secRem', this.props.lang)}
                     </Text>
                   )}
                   <View
                     style={{
-                      width: 10,
-                      height: 10,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginLeft: 10,
                     }}
                   />
                   {!this.state.isPlaying && (
@@ -715,40 +834,68 @@ export default class Feedback extends PureComponent {
                       disabled={!this.state.stoppedRecording}
                     />
                   )}
-                  {this.state.isPlaying && (
+                  {/* {this.state.isPlaying && (
                     <Text style={styles.progressText}>
                       {' '}
                       {res.resolve('audPlaying', this.props.lang)}
                     </Text>
-                  )}
+                  )} */}
                 </View>
               </View>
               <Text style={{color: 'red', fontStyle: 'italic', padding: 22}}>
                 {this.state.error}
               </Text>
               {this.props.lang == 'en-US' && (
-                <Text
+                <View
                   style={{
-                    color: 'grey',
-                    fontStyle: 'italic',
-                    fontSize: 12,
-                    padding: 22,
+                    flexDirection: 'row',
+                    left: 10,
                   }}>
-                  I consent usage of this recorded data for the purpose of
-                  quality assurance for the Department of Digital Ajman.
-                </Text>
+                  <CheckBox
+                    value={this.state.isSelected}
+                    onValueChange={vaue => {
+                      this.setState({isSelected: vaue})
+                    }}
+                    // style={styles.checkbox}
+                  />
+                  <Text
+                    style={{
+                      color: 'grey',
+                      fontStyle: 'italic',
+                      fontSize: 12,
+                      width: Dimensions.get('window').width * 0.75,
+                      // padding: 22,
+                    }}>
+                    I consent usage of this recorded data for the purpose of
+                    quality assurance for the Department of Digital Ajman.
+                  </Text>
+                </View>
               )}
               {this.props.lang == 'ar-EG' && (
-                <Text
+                <View
                   style={{
-                    color: 'grey',
-                    fontStyle: 'italic',
-                    fontSize: 12,
-                    padding: 22,
+                    flexDirection: 'row-reverse',
+                    right: 10,
                   }}>
-                  أوافق على استخدام هذه البيانات المسجلة لغرض ضمان الجودة لدائرة
-                  عجمان الرقمية
-                </Text>
+                  <CheckBox
+                    value={this.state.isSelected}
+                    onValueChange={vaue => {
+                      this.setState({isSelected: vaue})
+                    }}
+                    style={{top: 3}}
+                  />
+                  <Text
+                    style={{
+                      color: 'grey',
+                      // fontStyle: 'italic',
+                      fontSize: 13,
+                      width: Dimensions.get('window').width * 0.7,
+                      // padding: 22,
+                    }}>
+                    أوافق على استخدام هذه البيانات المسجلة لغرض ضمان الجودة
+                    لدائرة عجمان الرقمية
+                  </Text>
+                </View>
               )}
             </View>
           </>
@@ -757,7 +904,62 @@ export default class Feedback extends PureComponent {
         return (
           <>
             <ViewShot ref='viewShot' options={{format: 'png', quality: 0.9}}>
-              <View styles={{flex: 1}}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: 'grey',
+                  // fontStyle: 'italic',
+                  padding: 5,
+                  fontSize: 15,
+                }}>
+                {res.resolve('HNRV', this.props.lang)}
+                <View
+                  style={{
+                    width: '25%',
+                    height: 15,
+                    top: -3,
+                    flexDirection: 'row',
+                    // transform: [{ scale: 1 }],
+                    alignItems: 'center',
+                  }}>
+                  {this.props.type != 'text' && (
+                    <Picker
+                      selectedValue={this.state.selectedValue}
+                      // mode='dropdown'
+                      style={{
+                        height: 20,
+                        width: 120,
+                        left: this.props.lang == 'ar-EG' ? -5 : 30,
+                        color: '#0054ad',
+                        borderColor: '#333',
+                        // color: '#fff',
+                        backgroundColor: 'transparent',
+                      }}
+                      onValueChange={(itemValue, itemIndex) => {
+                        console.log(itemValue)
+                        this.setState({selectedValue: itemValue})
+                      }}>
+                      <Picker.Item
+                        label={res.resolve('AR', this.props.lang)}
+                        value='ar-EG'
+                      />
+                      <Picker.Item
+                        label={res.resolve('English', this.props.lang)}
+                        value='en-US'
+                      />
+                      <Picker.Item
+                        label={res.resolve('Urdu', this.props.lang)}
+                        value='hi-IN'
+                      />
+                    </Picker>
+                  )}
+                </View>
+              </Text>
+
+              <View
+                styles={{
+                  flex: 1,
+                }}>
                 <RNCamera
                   ref={ref => {
                     camera = ref
@@ -786,43 +988,40 @@ export default class Feedback extends PureComponent {
                     buttonNegative: 'Cancel',
                   }}
                 />
-                <Text style={{color: 'red', fontStyle: 'italic'}}>
-                  {this.state.error}
-                </Text>
-                {this.props.lang == 'en-US' && (
+                {!this.state.isPlaying && (
                   <Text
                     style={{
                       color: 'grey',
-                      fontStyle: 'italic',
-                      fontSize: 12,
-                      padding: 22,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      textAlign: 'center',
                     }}>
-                    I consent usage of this recorded data for the purpose of
-                    quality assurance for the Department of Digital Ajman.
+                    {this.state.timer +
+                      ' ' +
+                      res.resolve('secRem', this.props.lang)}
                   </Text>
                 )}
-                {this.props.lang == 'ar-EG' && (
-                  <Text
-                    style={{
-                      color: 'grey',
-                      fontStyle: 'italic',
-                      fontSize: 12,
-                      padding: 22,
-                    }}>
-                    أوافق على استخدام هذه البيانات المسجلة لغرض ضمان الجودة
-                    لدائرة عجمان الرقمية
+                {!this.state.error && (
+                  <Text style={{color: 'red', fontStyle: 'italic'}}>
+                    {this.state.error}
                   </Text>
                 )}
               </View>
             </ViewShot>
           </>
         )
+      // case 'audio':
       case 'Happy':
-        // case 'text':
         return (
           <>
             <View style={styles.container}>
               <View style={styles.controls}>
+                <View
+                  style={{
+                    width: 10,
+                    height: 20,
+                  }}
+                />
                 <Text
                   style={{
                     fontSize: 17,
@@ -838,12 +1037,11 @@ export default class Feedback extends PureComponent {
                       : require('../resouces/man-smile1.png')
                   }
                 />
-
                 <View
                   style={{
                     flexDirection: 'row',
                     justifyContent: 'center',
-                    alignItems: 'centxer',
+                    alignItems: 'center',
                     // position: 'absolute',
                     width: Dimensions.get('window').width * 1,
                     height: 20,
@@ -851,9 +1049,11 @@ export default class Feedback extends PureComponent {
                     // display: 'flex',
                     // top: Dimensions.get('window').height * 0.30,
                     alignItems: 'center',
+                    flexDirection:
+                      this.props.lang == 'ar-EG' ? 'row-reverse' : 'row',
                   }}>
                   <Button
-                    title={'  Yes  '}
+                    title={res.resolve('yes', this.props.lang)}
                     color='rgb(23, 98, 184)'
                     onPress={() => this.handleSatisfaction('Yes', 'positive')}
                     disabled={this.state.disabledVid}
@@ -865,7 +1065,7 @@ export default class Feedback extends PureComponent {
                     }}
                   />
                   <Button
-                    title={'   NO   '}
+                    title={res.resolve('no', this.props.lang)}
                     color='rgb(94, 212, 228)'
                     onPress={() => this.handleSatisfaction('No', 'negative')}
                     disabled={this.state.disabledVid}
@@ -887,6 +1087,12 @@ export default class Feedback extends PureComponent {
           <>
             <View style={styles.container}>
               <View style={styles.controls}>
+                <View
+                  style={{
+                    width: 10,
+                    height: 20,
+                  }}
+                />
                 <Text
                   style={{
                     fontSize: 17,
@@ -915,10 +1121,16 @@ export default class Feedback extends PureComponent {
                     // display: 'flex',
                     // top: Dimensions.get('window').height * 0.30,
                     alignItems: 'center',
+                    flexDirection:
+                      this.props.lang == 'ar-EG' ? 'row-reverse' : 'row',
                   }}>
                   <Button
-                    title={'  Yes  '}
+                    title={res.resolve('yes', this.props.lang)}
                     color='rgb(23, 98, 184)'
+                    style={{
+                      width: 10,
+                      height: 10,
+                    }}
                     onPress={() => this.handleSatisfaction('Yes', 'negative')}
                     disabled={this.state.disabledVid}
                   />
@@ -928,9 +1140,14 @@ export default class Feedback extends PureComponent {
                       height: 10,
                     }}
                   />
+                  
                   <Button
-                    title={'   NO   '}
+                    title={res.resolve('no', this.props.lang)}
                     color='rgb(94, 212, 228)'
+                    style={{
+                      width: 10,
+                      height: 10,
+                    }}
                     onPress={() => this.handleSatisfaction('No', 'positive')}
                     disabled={this.state.disabledVid}
                   />
@@ -951,6 +1168,12 @@ export default class Feedback extends PureComponent {
           <>
             <View style={styles.container}>
               <View style={{...styles.controls}}>
+                <View
+                  style={{
+                    width: 10,
+                    height: 20,
+                  }}
+                />
                 <Text
                   style={{
                     fontSize: 17,
@@ -989,7 +1212,8 @@ export default class Feedback extends PureComponent {
                     />
                     <Text
                       style={{
-                        marginLeft: Dimensions.get('window').width * 0.14,
+                        textAlign: 'center',
+                        marginLeft: Dimensions.get('window').width * 0.03,
                       }}>
                       {res.resolve('ok', this.props.lang)}
                     </Text>
@@ -1019,7 +1243,8 @@ export default class Feedback extends PureComponent {
                     />
                     <Text
                       style={{
-                        marginLeft: Dimensions.get('window').width * 0.1,
+                        textAlign: 'center',
+                        marginLeft: Dimensions.get('window').width * 0.03,
                         height: 20,
                       }}>
                       {res.resolve('sad', this.props.lang)}
@@ -1042,6 +1267,12 @@ export default class Feedback extends PureComponent {
           <>
             <View style={styles.container}>
               <View style={styles.controls}>
+                <View
+                  style={{
+                    width: 10,
+                    height: 20,
+                  }}
+                />
                 <Text
                   style={{
                     fontSize: 17,
@@ -1080,7 +1311,8 @@ export default class Feedback extends PureComponent {
                     />
                     <Text
                       style={{
-                        marginLeft: 52,
+                        textAlign: 'center',
+                        marginLeft: Dimensions.get('window').width * 0.03,
                         height: 20,
                       }}>
                       {res.resolve('happy', this.props.lang)}
@@ -1111,7 +1343,8 @@ export default class Feedback extends PureComponent {
                     />
                     <Text
                       style={{
-                        marginLeft: 60,
+                        textAlign: 'center',
+                        marginLeft: Dimensions.get('window').width * 0.03,
                         height: 20,
                       }}>
                       {res.resolve('ok', this.props.lang)}
@@ -1166,9 +1399,7 @@ export default class Feedback extends PureComponent {
             console.log(this.state.timer - 1)
             this.setState({
               timer: this.state.timer - 1,
-              label: `${res.resolve('StopRecording', this.props.lang)} (${
-                this.state.timer
-              })`,
+              label: `${res.resolve('StopRecording', this.props.lang)}`,
             })
           }
         }).bind(this),
@@ -1222,9 +1453,10 @@ export default class Feedback extends PureComponent {
     this.setTextError(null)
     console.log(this.state.timer)
     if (this.state.timer >= 55) {
-      this.setTextError('Video must be atleast 5 seconds long!')
+      console.log('ERROR', res.resolve('SecVide', this.props.lang))
+      this.setTextError(res.resolve('SecVide', this.props.lang))
     } else if (!this.state.showUploadVideo) {
-      this.setTextError('Please record your video first!')
+      this.setTextError(res.resolve('PRV', this.props.lang))
     } else {
       this.setSubmitLoading(true)
       try {
@@ -1280,7 +1512,7 @@ export default class Feedback extends PureComponent {
             })
             bodyFormData1.append('orgId', 'AFZ')
             bodyFormData1.append('type', 'V')
-            bodyFormData1.append('language', this.props.lang)
+            bodyFormData1.append('language', this.state.selectedValue)
 
             bodyFormData1.append('interactionId', response.data.interactionId)
 
@@ -1327,7 +1559,7 @@ export default class Feedback extends PureComponent {
       } catch (err) {
         console.log('Error in uploading Video second', err)
         this.setSubmitLoading(false)
-        this.setTextError('Error in uploading video')
+        this.setTextError(res.resolve('EUV', this.props.lang))
       }
     }
   }
@@ -1337,7 +1569,7 @@ export default class Feedback extends PureComponent {
       <>
         <Spinner
           visible={this.state.flag}
-          textContent={'Please wait..'}
+          textContent={res.resolve('PWT', this.props.lang)}
           textStyle={{color: '#FFF'}}
           animation='fade'
           overlayColor='#00336777'
@@ -1391,13 +1623,15 @@ export default class Feedback extends PureComponent {
                 </View>
                 <View
                   style={{
+                    // color: 'rgb(94, 212, 228)',
                     width: '90%',
                     height: 50,
                     right: this.state.isRTL ? 10 : 0,
                   }}>
                   <Text
                     style={{
-                      fontSize: 20,
+                      color: '#0054ad',
+                      fontSize: 18,
                       top: 10,
                       left: this.state.isRTL ? 0 : 10,
                     }}>
@@ -1407,7 +1641,8 @@ export default class Feedback extends PureComponent {
               </View>
               <View
                 style={{
-                  borderBottomColor: 'rgba(0, 0, 0, 0.12)',
+                  // borderColor: 'rgb(94, 212, 228)',
+                  borderBottomColor: 'rgba(0, 0, 0, 0.2)',
                   borderBottomWidth: 1,
                 }}
               />
@@ -1429,7 +1664,6 @@ export default class Feedback extends PureComponent {
                       />
                     </View>
                   )}
-
                 {this.props.type == 'audio' &&
                   !this.state.check &&
                   !this.state.completed && (
@@ -1437,6 +1671,7 @@ export default class Feedback extends PureComponent {
                       <Button
                         title={res.resolve('submitFeedback', this.props.lang)}
                         color='rgb(23, 98, 184);'
+                        disabled={!this.state.isSelected}
                         onPress={this.handleSubmitAudio.bind(this)}
                         style={styles.buttonFrm}
                       />
@@ -1451,7 +1686,11 @@ export default class Feedback extends PureComponent {
                         title={this.state.label}
                         color='rgb(23, 98, 184);'
                         onPress={this.startRecording.bind(this)}
-                        disabled={this.state.disabledVid}
+                        disabled={
+                          this.state.disabledVid
+                          // ? !this.state.isSelected
+                          // : true
+                        }
                         style={styles.buttonFrm}
                       />
                     </View>
@@ -1464,9 +1703,10 @@ export default class Feedback extends PureComponent {
                         title={res.resolve('submitFeedback', this.props.lang)}
                         color='rgb(23, 98, 184);'
                         onPress={this.handleSubmitVideo.bind(this)}
-                        disabled={this.state.disabledVid}
+                        disabled={
+                          this.state.disabledVid || !this.state.isSelected
+                        }
                         style={styles.buttonFrm}
-                        ć
                       />
                     </View>
                   )}
@@ -1505,7 +1745,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   textArea: {
-    borderColor: 'rgba(0, 0, 0, 0.3)',
+    borderColor: 'rgba(0, 0, 0, 0.4)',
     borderWidth: 1,
     textAlignVertical: 'top',
     padding: 5,
