@@ -1474,34 +1474,67 @@ export default class Feedback extends PureComponent {
   handleSubmitVideo = async () => {
     this.setTextError(null)
     console.log(this.state.timer)
+    console.log("response recived!!1")
     if (this.state.timer >= 55) {
       console.log('ERROR', res.resolve('SecVide', this.props.lang))
       this.setTextError(res.resolve('SecVide', this.props.lang))
+      console.log("response recived!!3")
     } else if (!this.state.showUploadVideo) {
+      console.log("response recived!!13")
       this.setTextError(res.resolve('PRV', this.props.lang))
+      console.log("response recived!!2")
     } else {
       this.setSubmitLoading(true)
       try {
         let bodyFormData = new FormData()
         // bodyFormData.append('file', captured);
-        let filename = this.state.captured.replace(/^.*[\\\/]/, '')
-        bodyFormData.append('file', {
-          name: filename,
-          uri: this.state.captured,
-          type: 'image/png',
-        })
-        bodyFormData.append('type', 'V')
+        console.log("response recived!!1")
+        // let filename = this.state.captured.replace(/^.*[\\\/]/, '')
+        // bodyFormData.append('file', {
+        //   name: filename,
+        //   uri: this.state.captured,
+        //   type: 'image/png',
+        // })
+        // bodyFormData.append('type', 'V')
 
-        let response = await axios({
-          method: 'post',
-          url: `${this.state.baseURL}/PUBLIC/Feedback/quickFeedback`,
-          data: bodyFormData,
-          headers: {
-            ...(await this.handleAccessToken()),
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-
+        // let response = await axios({
+        //   method: 'post',
+        //   url: `${this.state.baseURL}/PUBLIC/Feedback/quickFeedback`,
+        //   data: bodyFormData,
+        //   headers: {
+        //     ...(await this.handleAccessToken()),
+        //     'Content-Type': 'multipart/form-data',
+        //   },
+        // })
+        let response={ 
+          "status":200,
+          "data":[
+            {
+                "faceId": "68af35e6-75ef-420a-9075-6304a5212be1",
+                "faceRectangle": {
+                    "top": 883,
+                    "left": 385,
+                    "width": 602,
+                    "height": 602
+                },
+                "faceAttributes": {
+                    "gender": "male",
+                    "age": 39,
+                    "emotion": {
+                        "anger": 0,
+                        "contempt": 0.001,
+                        "disgust": 0,
+                        "fear": 0,
+                        "happiness": 0,
+                        "neutral": 0.988,
+                        "sadness": 0.003,
+                        "surprise": 0.007
+                    }
+                }
+            }
+         ]
+        }
+        console.log("response recived!!")
         if (response.status == 200) {
           console.log(
             response.data,
@@ -1550,19 +1583,19 @@ export default class Feedback extends PureComponent {
                 },
               }),
             )
-            setImmediate(async ()=>{
-              await axios({
-                method: 'post',
-                url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
-                data: bodyFormData1,
-                headers: {
-                  'Content-Type': 'multipart/form-data',
-                  ...(await this.handleAccessToken()),
-                },
-              })
+            // setImmediate(async ()=>{
+            //   await axios({
+            //     method: 'post',
+            //     url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
+            //     data: bodyFormData1,
+            //     headers: {
+            //       'Content-Type': 'multipart/form-data',
+            //       ...(await this.handleAccessToken()),
+            //     },
+            //   })
 
-            // console.log('upload response', response1)
-            });
+            // // console.log('upload response', response1)
+            // });
 
 
             if (this.state.allEmotions.includes('negative')) {Î
@@ -1738,7 +1771,8 @@ export default class Feedback extends PureComponent {
                       <Button
                         title={res.resolve('submitFeedback', this.props.lang)}
                         color='rgb(23, 98, 184);'
-                        onPress={this.handleSubmitVideo.bind(this)}
+                        onPress={this.
+                          .bind(this)}
                         disabled={
                           this.state.disabledVid || !this.state.isSelected
                         }
