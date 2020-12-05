@@ -415,6 +415,7 @@ export default class Feedback extends PureComponent {
   }
   setInteractionId (id, sentiment = 'Happy') {
     console.log('HAAAAA')
+    console.log('upload response', sentiment)
     this.setState({
       interactionId: id,
       check: sentiment,
@@ -1429,7 +1430,7 @@ export default class Feedback extends PureComponent {
         }).bind(this),
         1000,
       )
-      const options = {quality: RNCamera.Constants.VideoQuality["4:3"]}
+      const options = {quality: RNCamera.Constants.VideoQuality['4:3']}
       const {uri, codec = 'mp4'} = await camera.recordAsync(options)
       console.log('URI>>>>>>', uri)
 
@@ -1474,83 +1475,44 @@ export default class Feedback extends PureComponent {
   handleSubmitVideo = async () => {
     this.setTextError(null)
     console.log(this.state.timer)
-    console.log("response recived!!1")
     if (this.state.timer >= 55) {
       console.log('ERROR', res.resolve('SecVide', this.props.lang))
       this.setTextError(res.resolve('SecVide', this.props.lang))
-      console.log("response recived!!3")
     } else if (!this.state.showUploadVideo) {
-      console.log("response recived!!13")
       this.setTextError(res.resolve('PRV', this.props.lang))
-      console.log("response recived!!2")
     } else {
       this.setSubmitLoading(true)
       try {
         let bodyFormData = new FormData()
         // bodyFormData.append('file', captured);
-        console.log("response recived!!1")
-        // let filename = this.state.captured.replace(/^.*[\\\/]/, '')
-        // bodyFormData.append('file', {
-        //   name: filename,
-        //   uri: this.state.captured,
-        //   type: 'image/png',
-        // })
-        // bodyFormData.append('type', 'V')
-
-        // let response = await axios({
-        //   method: 'post',
-        //   url: `${this.state.baseURL}/PUBLIC/Feedback/quickFeedback`,
-        //   data: bodyFormData,
-        //   headers: {
-        //     ...(await this.handleAccessToken()),
-        //     'Content-Type': 'multipart/form-data',
-        //   },
-        // })
-        let response={ 
-          "status":200,
-          "data":[
-            {
-                "faceId": "68af35e6-75ef-420a-9075-6304a5212be1",
-                "faceRectangle": {
-                    "top": 883,
-                    "left": 385,
-                    "width": 602,
-                    "height": 602
-                },
-                "faceAttributes": {
-                    "gender": "male",
-                    "age": 39,
-                    "emotion": {
-                        "anger": 0,
-                        "contempt": 0.001,
-                        "disgust": 0,
-                        "fear": 0,
-                        "happiness": 0,
-                        "neutral": 0.988,
-                        "sadness": 0.003,
-                        "surprise": 0.007
-                    }
-                }
-            }
-         ]
-        }
-        console.log("response recived!!")
+        let filename = this.state.captured.replace(/^.*[\\\/]/, '')
+        bodyFormData.append('file', {
+          name: filename,
+          uri: this.state.captured,
+          type: 'image/png',
+        })
+        bodyFormData.append('type', 'V')
+        let response = await axios({
+          method: 'post',
+          url: `${this.state.baseURL}/PUBLIC/Feedback/quickFeedback`,
+          data: bodyFormData,
+          headers: {
+            ...(await this.handleAccessToken()),
+            'Content-Type': 'multipart/form-data',
+          },
+        })
         if (response.status == 200) {
           console.log(
             response.data,
-            'DFFFFFFFFFFFFFFFFFFFFFFFF',
             JSON.stringify(bodyFormData),
           )
 
-          if (!this.state.allEmotions.length) {
-            let allEmotions = [response.data.emotion]
-            this.setState({
-              allEmotions,
-              ...this.state.info,
-              age: response.data.age,
-              gender: response.data.gender,
-              emotion: response.data.emotion,
-            })
+          if (response.status == 200) {
+            if (!this.state.allEmotions.length) {
+              if(response.data && response.data.length && response.data[0].faceAttributes){
+                this.aggregateFaceResponses([response.data[0].faceAttributes])
+              }
+            }
           }
 
           try {
@@ -1566,11 +1528,8 @@ export default class Feedback extends PureComponent {
             bodyFormData1.append('orgId', 'AFZ')
             bodyFormData1.append('type', 'V')
             bodyFormData1.append('allEmotions', this.state.allEmotions)
-            
             bodyFormData1.append('language', this.state.selectedValue)
-
             bodyFormData1.append('interactionId', response.data.interactionId)
-
             this.setRecorded(false)
             console.log(
               JSON.stringify({
@@ -1583,22 +1542,26 @@ export default class Feedback extends PureComponent {
                 },
               }),
             )
-            // setImmediate(async ()=>{
-            //   await axios({
-            //     method: 'post',
-            //     url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
-            //     data: bodyFormData1,
-            //     headers: {
-            //       'Content-Type': 'multipart/form-data',
-            //       ...(await this.handleAccessToken()),
-            //     },
-            //   })
+            setImmediate(async () => {
+              await axios({
+                method: 'post',
+                url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
+                data: bodyFormData1,
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                  ...(await this.handleAccessToken()),
+                },
+              })
 
-            // // console.log('upload response', response1)
-            // });
+              // console.log('upload response', response1)
+            })
 
-
-            if (this.state.allEmotions.includes('negative')) {Î
+            console.log(
+              'upload response',
+              this.state.allEmotions,
+              this.state.allEmotions.includes('negative'),
+            )
+            if (this.state.allEmotions.includes('negative')) {
               this.setState({emotion: 'negative'})
               this.setInteractionId(response.data.interactionId, 'Sad')
             } else if (
@@ -1606,14 +1569,13 @@ export default class Feedback extends PureComponent {
               this.state.allEmotions.includes('neutral') &&
               !this.state.allEmotions.includes('negative')
             ) {
-              this.setState({ emotion: 'positive'})
+              this.setState({emotion: 'positive'})
               this.setInteractionId(response.data.interactionId)
             } else {
-              this.setState({ emotion: 'positive'})
+              this.setState({emotion: 'positive'})
               this.setInteractionId(response.data.interactionId)
             }
             this.setSubmitLoading(false)
-           
           } catch (err) {
             console.log('Error in uploading Video first', err)
             this.setSubmitLoading(false)
@@ -1771,8 +1733,7 @@ export default class Feedback extends PureComponent {
                       <Button
                         title={res.resolve('submitFeedback', this.props.lang)}
                         color='rgb(23, 98, 184);'
-                        onPress={this.
-                          .bind(this)}
+                        onPress={this.handleSubmitVideo.bind(this)}
                         disabled={
                           this.state.disabledVid || !this.state.isSelected
                         }
