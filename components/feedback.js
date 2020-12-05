@@ -525,20 +525,16 @@ export default class Feedback extends PureComponent {
     age = age / faceResponses.length
 
     console.log({
-      ...info,
       age,
       gender,
       confidence: confidence * 100,
       emotion: majorEmotion,
     })
 
-    allEmotions = [...allEmotions, ...[majorEmotion]]
+    let allEmotions = [...this.state.allEmotions, ...[majorEmotion]]
     console.log('all Emotions----------->', allEmotions)
-    // setAllEmotions(allEmotions1);
-
     this.setState({
       allEmotions,
-      ...info,
       age,
       gender,
       confidence: confidence * 100,
@@ -1536,6 +1532,8 @@ export default class Feedback extends PureComponent {
             })
             bodyFormData1.append('orgId', 'AFZ')
             bodyFormData1.append('type', 'V')
+            bodyFormData1.append('allEmotions', allEmotions)
+            
             bodyFormData1.append('language', this.state.selectedValue)
 
             bodyFormData1.append('interactionId', response.data.interactionId)
