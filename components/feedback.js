@@ -1433,7 +1433,7 @@ export default class Feedback extends PureComponent {
         }).bind(this),
         1000,
       )
-      const options = {quality: RNCamera.Constants.VideoQuality['480p']}
+      const options = {quality: RNCamera.Constants.VideoQuality["4:3"]}
       const {uri, codec = 'mp4'} = await camera.recordAsync(options)
       console.log('URI>>>>>>', uri)
 
@@ -1513,16 +1513,16 @@ export default class Feedback extends PureComponent {
             JSON.stringify(bodyFormData),
           )
 
-          // if (!this.state.allEmotions.length) {
-          //   let allEmotions = [response.data.emotion]
-          //   this.setState({
-          //     allEmotions,
-          //     ...this.state.info,
-          //     age: response.data.age,
-          //     gender: response.data.gender,
-          //     emotion: response.data.emotion,
-          //   })
-          // }
+          if (!this.state.allEmotions.length) {
+            let allEmotions = [response.data.emotion]
+            this.setState({
+              allEmotions,
+              ...this.state.info,
+              age: response.data.age,
+              gender: response.data.gender,
+              emotion: response.data.emotion,
+            })
+          }
 
           try {
             var bodyFormData1 = new FormData()
@@ -1552,35 +1552,40 @@ export default class Feedback extends PureComponent {
                 },
               }),
             )
-            let response1 = await axios({
-              method: 'post',
-              url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
-              data: bodyFormData1,
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                ...(await this.handleAccessToken()),
-              },
-            })
+            setImmediate(async ()=>{
+              await axios({
+                method: 'post',
+                url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
+                data: bodyFormData1,
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                  ...(await this.handleAccessToken()),
+                },
+              })
 
-            if (this.state.allEmotions.includes('negative')) {
-              this.setState({...info, emotion: 'negative'})
+            // console.log('upload response', response1)
+            });
+
+
+            if (this.state.allEmotions.includes('negative')) {Î
+              this.setState({emotion: 'negative'})
               this.setInteractionId(response.data.interactionId, 'Sad')
             } else if (
               this.state.allEmotions.includes('positive') &&
               this.state.allEmotions.includes('neutral') &&
               !this.state.allEmotions.includes('negative')
             ) {
-              this.setState({...info, emotion: 'positive'})
+              this.setState({ emotion: 'positive'})
               this.setInteractionId(response.data.interactionId)
             } else {
-              this.setState({...info, emotion: 'positive'})
+              this.setState({ emotion: 'positive'})
               this.setInteractionId(response.data.interactionId)
             }
             this.setSubmitLoading(false)
-            // this.setInteractionId(response.data.interactionId)
-            console.log('upload response', response1)
+           
           } catch (err) {
             console.log('Error in uploading Video first', err)
+            this.setSubmitLoading(false)
           }
         }
       } catch (err) {
