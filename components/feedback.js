@@ -436,7 +436,6 @@ export default class Feedback extends PureComponent {
         type: 'image/png',
       })
       this.setState({captured: uri})
-      // bodyFormData.append('file', file)
       console.log(
         'reqsent!',
         `${this.props.baseURL}/PUBLIC/Feedback/faceAttributes`,
@@ -448,7 +447,7 @@ export default class Feedback extends PureComponent {
         headers: {
           'Content-Type': 'multipart/form-data',
           ...(await this.handleAccessToken()),
-        },
+        }
       })
       console.log('response!', response)
       if (response.status == 200) {
@@ -457,7 +456,7 @@ export default class Feedback extends PureComponent {
             ...this.state.faceResponses,
             ...[response.data.faceResponse.faceAttributes],
           ])
-          aggregateFaceResponses([
+          this.aggregateFaceResponses([
             ...this.state.faceResponses,
             ...[response.data.faceResponse.faceAttributes],
           ])
@@ -1507,13 +1506,13 @@ export default class Feedback extends PureComponent {
             JSON.stringify(bodyFormData),
           )
 
-          if (response.status == 200) {
-            if (!this.state.allEmotions.length) {
-              if(response.data && response.data.length && response.data[0].faceAttributes){
-                this.aggregateFaceResponses([response.data[0].faceAttributes])
-              }
-            }
-          }
+          // if (response.status == 200) {
+          //   if (!this.state.allEmotions.length) {
+          //     if(response.data && response.data.length && response.data[0].faceAttributes){
+          //       this.aggregateFaceResponses([response.data[0].faceAttributes])
+          //     }
+          //   }
+          // }
 
           try {
             var bodyFormData1 = new FormData()
