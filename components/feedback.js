@@ -1,7 +1,7 @@
 import React, {useState, PureComponent} from 'react'
 import ViewShot from 'react-native-view-shot'
 import Spinner from 'react-native-loading-spinner-overlay'
-import res from './langResouurces'
+import res from './langResources'
 import {
   SafeAreaView,
   StyleSheet,
@@ -57,9 +57,6 @@ export default class Feedback extends PureComponent {
       textValue: '',
       allEmotions: [],
     }
-
-    // this.audioRecorderPlayer = new AudioRecorderPlayer()
-    // this.audioRecorderPlayer.setSubscriptionDuration(0.09) // optional. Default is 0.1
   }
   prepareRecordingPath (audioPath) {
     AudioRecorder.prepareRecordingAtPath(audioPath, {
@@ -439,6 +436,10 @@ export default class Feedback extends PureComponent {
       })
       this.setState({captured: uri})
       // bodyFormData.append('file', file)
+      console.log(
+        'reqsent!',
+        `${this.props.baseURL}/PUBLIC/Feedback/faceAttributes`,
+      )
       let response = await axios({
         method: 'post',
         url: `${this.props.baseURL}/PUBLIC/Feedback/faceAttributes`,
@@ -448,6 +449,7 @@ export default class Feedback extends PureComponent {
           ...(await this.handleAccessToken()),
         },
       })
+      console.log('response!', response)
       if (response.status == 200) {
         if (response.data.faceResponse.length > 0) {
           this.setState([
@@ -458,9 +460,13 @@ export default class Feedback extends PureComponent {
             ...this.state.faceResponses,
             ...[response.data.faceResponse.faceAttributes],
           ])
+
+          // setFaceResponses([...faceResponses,...[response.data.faceResponse.faceAttributes]]);
+          // aggregateFaceResponses([...faceResponses,...[response.data.faceResponse.faceAttributes]]);
         }
       }
     } catch (err) {
+      console.log('response!', err)
       console.log('Error in uploading face photo', err.stack)
     }
   }
@@ -477,28 +483,41 @@ export default class Feedback extends PureComponent {
     let majorEmotion = null
 
     faceResponses.forEach(response => {
+      console.log(response.emotion)
       gender = response.gender
       age += response.age
-      Object.keys(response.emotion).map(o => {
-        if (
-          o == 'anger' ||
-          o == 'contempt' ||
-          o == 'disgust' ||
-          o == 'fear' ||
-          o == 'sadness'
-        ) {
-          emotion['negative'] += response.emotion[o]
-        } else if (o == 'happiness' || o == 'surprise') {
-          emotion['positive'] += response.emotion[o]
-        } else {
-          emotion['neutral'] += response.emotion[o]
-        }
-      })
     })
 
+    let response = faceResponses[faceResponses.length - 1]
+
+    Object.keys(response.emotion).map(o => {
+      if (
+        o == 'anger' ||
+        o == 'contempt' ||
+        o == 'disgust' ||
+        o == 'fear' ||
+        o == 'sadness'
+      ) {
+        console.log('negtiave case---->', o)
+        emotion['negative'] += response.emotion[o]
+      } else if (o == 'happiness' || o == 'surprise') {
+        console.log('postive case---->', o)
+        emotion['positive'] += response.emotion[o]
+      } else {
+        console.log('neutral case---->', o)
+        emotion['neutral'] += response.emotion[o]
+      }
+    })
+
+    console.log('all scores---------->', emotion)
+    console.log('total confidence')
+
     Object.keys(emotion).map(o => {
-      if (emotion[o] / faceResponses.length > confidence) {
-        confidence = emotion[o] / faceResponses.length
+      console.log(o, 'emotion key')
+      console.log(confidence, 'confidence')
+      console.log(majorEmotion, 'majorEmotion')
+      if (emotion[o] > confidence) {
+        confidence = emotion[o]
         majorEmotion = o
       }
     })
@@ -513,8 +532,7 @@ export default class Feedback extends PureComponent {
       emotion: majorEmotion,
     })
 
-    let allEmotions = [...this.state.allEmotions, ...[majorEmotion]]
-
+    allEmotions = [...allEmotions, ...[majorEmotion]]
     console.log('all Emotions----------->', allEmotions)
     // setAllEmotions(allEmotions1);
 
@@ -640,13 +658,15 @@ export default class Feedback extends PureComponent {
                   ...styles.textArea,
                   textAlign: this.state.isRTL ? 'right' : 'left',
                 }}
-                maxLength={500}
                 value={this.state.textValue}
                 placeholder={res.resolve('EnterFBack', this.props.lang)}
+                maxLength={500}
                 onChangeText={textValue => {
+                  console.log(textValue)
+                  //this.setState({ textValue });
                   console.log(String(this.state.textValue).length)
                   // if (String(this.state.textValue).length < 500) {
-                    this.setState({textValue})
+                  this.setState({textValue})
                   // }
                 }}
               />
@@ -696,15 +716,15 @@ export default class Feedback extends PureComponent {
                     // padding: 22,
                   }}>
                   I consent usage of this recorded data for the purpose of
-                  quality assurance for the Department of Digital Ajman.
+                  quality assurance.
                 </Text>
               </View>
             )}
             {this.props.lang == 'ar-EG' && (
               <View
                 style={{
-                  flexDirection: 'row-reverse',
-                  right: 10,
+                  flexDirection: 'row',
+                  marginHorizontal: 10,
                 }}>
                 <CheckBox
                   value={this.state.isSelected}
@@ -721,8 +741,8 @@ export default class Feedback extends PureComponent {
                     width: Dimensions.get('window').width * 0.7,
                     // padding: 22,
                   }}>
-                  أوافق على استخدام هذه البيانات المسجلة لغرض ضمان الجودة لدائرة
-                  عجمان الرقمية
+                  أوافق على استخدام هذه البيانات المسجلة لأغراض ضمان الجودة
+                  والتدريب
                 </Text>
               </View>
             )}
@@ -742,47 +762,50 @@ export default class Feedback extends PureComponent {
                     fontSize: 15,
                   }}>
                   {res.resolve('HNR', this.props.lang)}
-                  <View
-                    style={{
-                      width: '20%',
-                      height: 15,
-                      top: -3,
-                      flexDirection: 'row',
-                      // transform: [{ scale: 1 }],
-                      alignItems: 'center',
-                    }}>
-                    {this.props.type != 'text' && (
-                      <Picker
-                        selectedValue={this.state.selectedValue}
-                        // mode='dropdown'
-                        style={{
-                          height: 20,
-                          width: 120,
-                          left: this.props.lang == 'ar-EG' ? 20 : 0,
-                          color: '#0054ad',
-                          borderColor: '#333',
-                          backgroundColor: 'transparent',
-                        }}
-                        onValueChange={(itemValue, itemIndex) => {
-                          console.log(itemValue)
-                          this.setState({selectedValue: itemValue})
-                        }}>
-                        <Picker.Item
-                          label={res.resolve('AR', this.props.lang)}
-                          value='ar-EG'
-                        />
-                        <Picker.Item
-                          label={res.resolve('English', this.props.lang)}
-                          value='en-US'
-                        />
-                        <Picker.Item
-                          label={res.resolve('Urdu', this.props.lang)}
-                          value='hi-IN'
-                        />
-                      </Picker>
-                    )}
-                  </View>
                 </Text>
+                <>
+                  {this.props.type != 'text' && (
+                    <Picker
+                      itemStyle={{padding: 0, margin: 0, left: 0, right: 0}}
+                      selectedValue={this.state.selectedValue}
+                      //mode="dropdown"
+                      style={{
+                        height: 20,
+                        width:
+                          this.props.lang == 'ar-EG'
+                            ? Dimensions.get('window').width
+                            : 120,
+                        left:
+                          this.props.lang == 'ar-EG'
+                            ? Dimensions.get('window').width / 2 - 60
+                            : 0,
+                        // right: this.props.lang == 'ar-EG' ? 20 : 0,
+                        color: '#0054ad',
+                        borderColor: '#333',
+                        // backgroundColor: 'transparent',
+                        // CenterContentStyle,
+                      }}
+                      onValueChange={(itemValue, itemIndex) => {
+                        console.log(itemValue)
+                        this.setState({selectedValue: itemValue})
+                      }}>
+                      <Picker.Item
+                        label={res.resolve('AR', this.props.lang)}
+                        value='ar-EG'
+                        // style={{ textAlign: 'center' }}
+                      />
+                      <Picker.Item
+                        label={res.resolve('English', this.props.lang)}
+                        value='en-US'
+                      />
+                      <Picker.Item
+                        label={res.resolve('Urdu', this.props.lang)}
+                        value='hi-IN'
+                      />
+                    </Picker>
+                  )}
+                </>
+
                 <TouchableOpacity
                   style={{
                     width: 200,
@@ -871,15 +894,15 @@ export default class Feedback extends PureComponent {
                       // padding: 22,
                     }}>
                     I consent usage of this recorded data for the purpose of
-                    quality assurance for the Department of Digital Ajman.
+                    quality assurance.
                   </Text>
                 </View>
               )}
               {this.props.lang == 'ar-EG' && (
                 <View
                   style={{
-                    flexDirection: 'row-reverse',
-                    right: 10,
+                    flexDirection: 'row',
+                    marginHorizontal: 10,
                   }}>
                   <CheckBox
                     value={this.state.isSelected}
@@ -896,8 +919,8 @@ export default class Feedback extends PureComponent {
                       width: Dimensions.get('window').width * 0.7,
                       // padding: 22,
                     }}>
-                    أوافق على استخدام هذه البيانات المسجلة لغرض ضمان الجودة
-                    لدائرة عجمان الرقمية
+                    أوافق على استخدام هذه البيانات المسجلة لأغراض ضمان الجودة
+                    والتدريب
                   </Text>
                 </View>
               )}
@@ -907,7 +930,7 @@ export default class Feedback extends PureComponent {
       case 'video':
         return (
           <>
-            <ViewShot ref='viewShot' options={{format: 'png', quality: 0.9}}>
+            <ViewShot ref='viewShot' options={{format: 'png', quality: 0.7}}>
               <Text
                 style={{
                   textAlign: 'center',
@@ -917,48 +940,49 @@ export default class Feedback extends PureComponent {
                   fontSize: 15,
                 }}>
                 {res.resolve('HNRV', this.props.lang)}
-                <View
-                  style={{
-                    width: '25%',
-                    height: 15,
-                    top: -3,
-                    flexDirection: 'row',
-                    // transform: [{ scale: 1 }],
-                    alignItems: 'center',
-                  }}>
-                  {this.props.type != 'text' && (
-                    <Picker
-                      selectedValue={this.state.selectedValue}
-                      // mode='dropdown'
-                      style={{
-                        height: 20,
-                        width: 120,
-                        left: this.props.lang == 'ar-EG' ? -5 : 30,
-                        color: '#0054ad',
-                        borderColor: '#333',
-                        // color: '#fff',
-                        backgroundColor: 'transparent',
-                      }}
-                      onValueChange={(itemValue, itemIndex) => {
-                        console.log(itemValue)
-                        this.setState({selectedValue: itemValue})
-                      }}>
-                      <Picker.Item
-                        label={res.resolve('AR', this.props.lang)}
-                        value='ar-EG'
-                      />
-                      <Picker.Item
-                        label={res.resolve('English', this.props.lang)}
-                        value='en-US'
-                      />
-                      <Picker.Item
-                        label={res.resolve('Urdu', this.props.lang)}
-                        value='hi-IN'
-                      />
-                    </Picker>
-                  )}
-                </View>
               </Text>
+              <>
+                {this.props.type != 'text' && (
+                  <Picker
+                    selectedValue={this.state.selectedValue}
+                    //mode="dropdown"
+                    itemStyle={{padding: 0, margin: 0, left: 0, right: 0}}
+                    style={{
+                      height: 20,
+                      width:
+                        this.props.lang == 'ar-EG'
+                          ? Dimensions.get('window').width
+                          : 120,
+                      left:
+                        this.props.lang == 'ar-EG'
+                          ? Dimensions.get('window').width / 2 - 60
+                          : Dimensions.get('window').width / 2 - 60,
+                      // right: this.props.lang == 'ar-EG' ? 20 : 0,
+                      color: '#0054ad',
+                      borderColor: '#333',
+
+                      // color: '#fff',
+                      // backgroundColor: 'transparent',
+                    }}
+                    onValueChange={(itemValue, itemIndex) => {
+                      console.log(itemValue)
+                      this.setState({selectedValue: itemValue})
+                    }}>
+                    <Picker.Item
+                      label={res.resolve('AR', this.props.lang)}
+                      value='ar-EG'
+                    />
+                    <Picker.Item
+                      label={res.resolve('English', this.props.lang)}
+                      value='en-US'
+                    />
+                    <Picker.Item
+                      label={res.resolve('Urdu', this.props.lang)}
+                      value='hi-IN'
+                    />
+                  </Picker>
+                )}
+              </>
 
               <View
                 styles={{
@@ -1373,6 +1397,7 @@ export default class Feedback extends PureComponent {
     if (this.state.showUploadVideo == true) {
       this.setState({
         type: 'video',
+        // timer: 60,
         label: res.resolve('startRecord', this.props.lang),
         showUploadVideo: false,
       })
@@ -1381,7 +1406,6 @@ export default class Feedback extends PureComponent {
         recording: true,
         timer: 60,
       })
-      // default to mp4 for android as codec is not set
       console.log('i am here')
       interval = setInterval(
         (() => {
@@ -1409,7 +1433,8 @@ export default class Feedback extends PureComponent {
         }).bind(this),
         1000,
       )
-      const {uri, codec = 'mp4'} = await camera.recordAsync()
+      const options = {quality: RNCamera.Constants.VideoQuality['480p']}
+      const {uri, codec = 'mp4'} = await camera.recordAsync(options)
       console.log('URI>>>>>>', uri)
 
       this.setState({
@@ -1426,8 +1451,6 @@ export default class Feedback extends PureComponent {
   }
 
   async stopRecording () {
-    // this.state.recording = false
-    // this.state.stopped = true
     this.setState({recording: false, stopped: true})
     camera.stopRecording()
   }
@@ -1437,7 +1460,6 @@ export default class Feedback extends PureComponent {
   }
   switchVideo () {
     console.log('stopped')
-    // camera = null
     this.setState({
       type: 'video',
       recording: false,
@@ -1490,22 +1512,20 @@ export default class Feedback extends PureComponent {
             'DFFFFFFFFFFFFFFFFFFFFFFFF',
             JSON.stringify(bodyFormData),
           )
-          if (!this.state.allEmotions.length) {
-            let allEmotions = [response.data.emotion]
-            this.setState({
-              allEmotions,
-              ...this.state.info,
-              age: response.data.age,
-              gender: response.data.gender,
-              emotion: response.data.emotion,
-            })
-          }
+
+          // if (!this.state.allEmotions.length) {
+          //   let allEmotions = [response.data.emotion]
+          //   this.setState({
+          //     allEmotions,
+          //     ...this.state.info,
+          //     age: response.data.age,
+          //     gender: response.data.gender,
+          //     emotion: response.data.emotion,
+          //   })
+          // }
 
           try {
             var bodyFormData1 = new FormData()
-            // bodyFormData1.append('name', fileName)
-            // bodyFormData1.append('file', videoFile)
-            // bodyFormData1.append('type', 'V')
             let filename = this.state.uri.replace(/^.*[\\\/]/, '')
             // uri: Platform.OS === 'android' ? image.uri : image.uri.replace('file://', ''),
             bodyFormData1.append('name', filename)
@@ -1541,20 +1561,23 @@ export default class Feedback extends PureComponent {
                 ...(await this.handleAccessToken()),
               },
             })
+
             if (this.state.allEmotions.includes('negative')) {
               this.setState({...info, emotion: 'negative'})
               this.setInteractionId(response.data.interactionId, 'Sad')
-            }
-            if (
+            } else if (
               this.state.allEmotions.includes('positive') &&
               this.state.allEmotions.includes('neutral') &&
               !this.state.allEmotions.includes('negative')
             ) {
               this.setState({...info, emotion: 'positive'})
               this.setInteractionId(response.data.interactionId)
+            } else {
+              this.setState({...info, emotion: 'positive'})
+              this.setInteractionId(response.data.interactionId)
             }
             this.setSubmitLoading(false)
-            this.setInteractionId(response.data.interactionId)
+            // this.setInteractionId(response.data.interactionId)
             console.log('upload response', response1)
           } catch (err) {
             console.log('Error in uploading Video first', err)
@@ -1582,7 +1605,10 @@ export default class Feedback extends PureComponent {
         <SafeAreaView style={{marginTop: this.state.mtop}}>
           <ScrollView
             contentInsetAdjustmentBehavior='automatic'
-            style={styles.scrollView}>
+            style={[
+              styles.scrollView,
+              this.state.isRTL && {transform: [{scaleX: -1}]},
+            ]}>
             <View
               style={{
                 backgroundColor: '#FFF',
@@ -1598,7 +1624,7 @@ export default class Feedback extends PureComponent {
               <View
                 style={{
                   flex: 1,
-                  flexDirection: this.state.isRTL ? 'row' : 'row-reverse',
+                  flexDirection: 'row-reverse',
                 }}>
                 <View
                   style={{
@@ -1609,7 +1635,10 @@ export default class Feedback extends PureComponent {
                   <TouchableOpacity
                     style={{
                       top: 7,
-                      left: this.state.isRTL ? 10 : 0,
+                      left: this.state.isRTL ? 'auto' : 0,
+                      right: this.state.isRTL ? 10 : 'auto',
+
+                      // left: this.state.isRTL ? 10 : 0,
                     }}
                     onPress={() => {
                       this.props.endFlow()
@@ -1716,16 +1745,6 @@ export default class Feedback extends PureComponent {
                   )}
               </View>
             </View>
-            {/* <View style={{flex: 1, padding: 10}}>
-              <Button
-                title={this.state.label}
-                color='rgb(94, 212, 228)'
-                onPress={this.startRecording.bind(this)}
-                accessibilityLabel='Video'
-                style={styles.buttonFrm}
-              />
-            </View> */}
-            {/* )} */}
           </ScrollView>
         </SafeAreaView>
       </>
