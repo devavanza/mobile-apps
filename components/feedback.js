@@ -447,23 +447,12 @@ export default class Feedback extends PureComponent {
         headers: {
           'Content-Type': 'multipart/form-data',
           ...(await this.handleAccessToken()),
-        }
+        },
       })
       console.log('response!', response)
       if (response.status == 200) {
-        if (response.data.faceResponse.length > 0) {
-          this.setState([
-            ...this.state.faceResponses,
-            ...[response.data.faceResponse.faceAttributes],
-          ])
-          this.aggregateFaceResponses([
-            ...this.state.faceResponses,
-            ...[response.data.faceResponse.faceAttributes],
-          ])
-
-          // setFaceResponses([...faceResponses,...[response.data.faceResponse.faceAttributes]]);
-          // aggregateFaceResponses([...faceResponses,...[response.data.faceResponse.faceAttributes]]);
-        }
+        // console.log('response.data.faceResponse.length!', response.data.faceResponse.length)
+        this.aggregateFaceResponses([response.data.faceResponse.faceAttributes])
       }
     } catch (err) {
       console.log('response!', err)
@@ -984,6 +973,14 @@ export default class Feedback extends PureComponent {
                 styles={{
                   flex: 1,
                 }}>
+                {/* <Image
+                  style={{
+                    left:20,
+                    width: 100,
+                    height: 200,
+                  }}
+                  source={require('../resouces/happy.jpeg')}
+                /> */}
                 <RNCamera
                   ref={ref => {
                     camera = ref
@@ -1501,10 +1498,7 @@ export default class Feedback extends PureComponent {
           },
         })
         if (response.status == 200) {
-          console.log(
-            response.data,
-            JSON.stringify(bodyFormData),
-          )
+          console.log(response.data, JSON.stringify(bodyFormData))
 
           // if (response.status == 200) {
           //   if (!this.state.allEmotions.length) {
