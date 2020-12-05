@@ -1532,7 +1532,7 @@ export default class Feedback extends PureComponent {
             })
             bodyFormData1.append('orgId', 'AFZ')
             bodyFormData1.append('type', 'V')
-            bodyFormData1.append('allEmotions', allEmotions)
+            bodyFormData1.append('allEmotions', this.state.allEmotions)
             
             bodyFormData1.append('language', this.state.selectedValue)
 
