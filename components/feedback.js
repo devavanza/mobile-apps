@@ -383,6 +383,10 @@ export default class Feedback extends PureComponent {
             type,
             interactionId: intId,
             customerProvidedSentiment: userEmotion,
+            emotion:this.state.emotion?this.state.emotion:null,
+            confidence:this.state.confidence?this.state.confidence:null,
+            age:this.state.age?this.state.age:null,
+            gender:this.state.gender?this.state.gender:null,
             // indexId:indexResposne.indexId,
           },
           headers: {
