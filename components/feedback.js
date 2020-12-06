@@ -473,7 +473,7 @@ export default class Feedback extends PureComponent {
     let confidence = 0
     let age = 0
     let gender = null
-    let majorEmotion = null
+    let majorEmotion = 'neutral'
 
     faceResponses.forEach(response => {
       console.log(response.emotion)
@@ -500,7 +500,7 @@ export default class Feedback extends PureComponent {
         console.log('neutral case---->', o)
         emotion['neutral'] += response.emotion[o]
       }
-    })
+    });
 
     console.log('all scores---------->', emotion)
     console.log('total confidence')
@@ -509,7 +509,7 @@ export default class Feedback extends PureComponent {
       console.log(o, 'emotion key')
       console.log(confidence, 'confidence')
       console.log(majorEmotion, 'majorEmotion')
-      if (emotion[o] > confidence) {
+      if (emotion[o] > confidence && o != 'neutral') {
         confidence = emotion[o]
         majorEmotion = o
       }
