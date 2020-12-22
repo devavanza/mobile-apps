@@ -1,16 +1,8 @@
-import React, {Component} from 'react'
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Modal,
-  Dimensions,
-} from 'react-native'
-import res from './langResouurces'
-import {Colors} from 'react-native/Libraries/NewAppScreen'
-import Feedback from './feedback.js'
+import React, { Component } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Dimensions } from 'react-native';
+import res from './langResouurces';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Feedback from './feedback.js';
 
 export default class Wrapper extends Component {
   // initial state
@@ -20,22 +12,22 @@ export default class Wrapper extends Component {
     isVideo: false,
     isText: false,
     transparent: true,
-  }
+  };
 
   // hide show modal
-  displayModal (show) {
-    this.setState({isVisible: show})
+  displayModal(show) {
+    this.setState({ isVisible: show });
   }
-  onClickVideo () {
-    this.setState({isVideo: true})
+  onClickVideo() {
+    this.setState({ isVideo: true });
   }
-  onClickAudio () {
-    this.setState({isAudio: true})
+  onClickAudio() {
+    this.setState({ isAudio: true });
   }
-  onClickText () {
-    this.setState({isText: true})
+  onClickText() {
+    this.setState({ isText: true });
   }
-  endFlow () {
+  endFlow() {
     // alert("Your Feedback Submitted Successfully!!");
     this.setState({
       isVisible: false,
@@ -44,22 +36,17 @@ export default class Wrapper extends Component {
       isVideo: false,
       isText: false,
       visibily: false,
-    })
+    });
   }
-  renderMain () {
+  renderMain() {
     return (
       <>
-        <Image
-          source={require('../resouces/drawer.png')}
-          style={styles.image}
-        />
-        <Text style={styles.imageTextExp}>
-          {res.resolve('exp', this.props.lang)}
-        </Text>
+        <Image source={require('../resouces/drawer.png')} style={styles.image} />
+        <Text style={styles.imageTextExp}>{res.resolve('exp', this.props.lang)}</Text>
         <View style={styles.imageText}>
           <TouchableOpacity
             onPress={() => {
-              this.setState({isText: true, transparent: false})
+              this.setState({ isText: true, transparent: false });
             }}>
             <Image
               style={{
@@ -76,7 +63,7 @@ export default class Wrapper extends Component {
         <View style={styles.imageVideo}>
           <TouchableOpacity
             onPress={() => {
-              this.setState({isVideo: true, transparent: false})
+              this.setState({ isVideo: true, transparent: false });
             }}>
             <Image
               style={{
@@ -92,7 +79,7 @@ export default class Wrapper extends Component {
         <View style={styles.imageAudio}>
           <TouchableOpacity
             onPress={() => {
-              this.setState({isAudio: true, transparent: false})
+              this.setState({ isAudio: true, transparent: false });
             }}>
             <Image
               style={{
@@ -106,7 +93,7 @@ export default class Wrapper extends Component {
           </TouchableOpacity>
         </View>
       </>
-    )
+    );
   }
 
   render() {
@@ -129,12 +116,9 @@ export default class Wrapper extends Component {
           transparent={true}
           visible={this.state.isVisible}
           onRequestClose={() => {
-            Alert.alert('Modal has now been closed.')
+            Alert.alert('Modal has now been closed.');
           }}>
-          {!this.state.isAudio &&
-            !this.state.isVideo &&
-            !this.state.isText &&
-            this.renderMain()}
+          {!this.state.isAudio && !this.state.isVideo && !this.state.isText && this.renderMain()}
 
           {this.state.isVideo && (
             <View
@@ -145,7 +129,7 @@ export default class Wrapper extends Component {
                 backgroundColor: 'rgba(0,0,0,0.5)',
               }}>
               <Feedback
-                type='video'
+                type="video"
                 gender={this.props.gender}
                 baseURL={this.props.api}
                 lang={this.props.lang}
@@ -165,7 +149,7 @@ export default class Wrapper extends Component {
                 backgroundColor: 'rgba(0,0,0,0.5)',
               }}>
               <Feedback
-                type='audio'
+                type="audio"
                 gender={this.props.gender}
                 baseURL={this.props.api}
                 lang={this.props.lang}
@@ -184,7 +168,7 @@ export default class Wrapper extends Component {
                 backgroundColor: 'rgba(0, 0, 0, 0.87)',
               }}>
               <Feedback
-                type='text'
+                type="text"
                 gender={this.props.gender}
                 baseURL={this.props.api}
                 lang={this.props.lang}
@@ -211,14 +195,14 @@ export default class Wrapper extends Component {
               position: 'absolute',
             }}
             onPress={() => {
-              this.setState({visibily: true})
-              this.displayModal(true)
+              this.setState({ visibily: true });
+              this.displayModal(true);
             }}>
             <Image source={require('../resouces/feedback.png')} />
           </TouchableOpacity>
         )}
       </View>
-    )
+    );
   }
 }
 
@@ -313,7 +297,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 60,
     height: 60,
-    // resizeMode: 'contain',
+    resizeMode: 'contain',
     borderRadius: 100,
   },
   imageAudio: {
@@ -330,7 +314,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     width: 60,
     height: 60,
-    // resizeMode: 'contain',
+    resizeMode: 'contain',
     borderRadius: 100,
   },
   imageVideo: {
@@ -347,22 +331,27 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 60,
     height: 60,
-    // resizeMode: 'contain',
+    resizeMode: 'contain',
     borderRadius: 100,
   },
   imageTextExp: {
     position: 'absolute',
     marginTop: 20,
+    // top: 310,
     top: Dimensions.get('window').height * 0.35,
     bottom: 310,
+    // left: 240,
+    // right: 85,
     fontSize: 16,
     left: Dimensions.get('window').width * 0.44,
     color: '#FFF',
     fontWeight: 'bold',
+    // right: Dimensions.get('window').width * 0.1,
     opacity: 1,
     flex: 1,
     width: 210,
     height: 60,
+    resizeMode: 'contain',
     borderRadius: 100,
   },
   text: {
@@ -370,4 +359,4 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     padding: 40,
   },
-})
+});

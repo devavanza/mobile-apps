@@ -2,6 +2,7 @@ import React, {useState, PureComponent} from 'react'
 import ViewShot from 'react-native-view-shot'
 import Spinner from 'react-native-loading-spinner-overlay'
 import res from './langResources'
+import styles from './feedbackStyle'
 import {
   SafeAreaView,
   StyleSheet,
@@ -74,6 +75,7 @@ export default class Feedback extends PureComponent {
       clientSecret: this.state.clientSecret,
     }
   }
+
   setTextError (error) {
     this.setState({error: error})
   }
@@ -110,7 +112,6 @@ export default class Feedback extends PureComponent {
       }
 
       AudioRecorder.onFinished = data => {
-        // Android callback comes in the form of a promise instead.
         if (Platform.OS === 'ios') {
           this._finishRecording(
             data.status === 'OK',
@@ -200,9 +201,6 @@ export default class Feedback extends PureComponent {
     if (this.state.recording) {
       await this._stop()
     }
-
-    // These timeouts are a hacky workaround for some issues with react-native-sound.
-    // See https://github.com/zmxv/react-native-sound/issues/89.
     setTimeout(() => {
       var sound = new Sound(this.state.audioPath, '', error => {
         if (error) {
@@ -241,7 +239,6 @@ export default class Feedback extends PureComponent {
         var bodyFormData = new FormData()
         bodyFormData.append('name', filename)
         console.log(this.state.audioPath, filename)
-        // bodyFormData.append('file', audioFile)
         bodyFormData.append('file', {
           name: filename,
           uri: 'file://' + this.state.audioPath,
@@ -333,6 +330,7 @@ export default class Feedback extends PureComponent {
       console.error(error)
     }
   }
+
   setOther (flag, sentiment) {
     if (sentiment == 'positive') {
       this.setState({other: flag, check: 'otherpositive'})
@@ -379,15 +377,13 @@ export default class Feedback extends PureComponent {
           method: 'post',
           url: `${this.state.baseURL}/PUBLIC/Feedback/submitInteraction`,
           data: {
-            //   ...info,
             type,
             interactionId: intId,
             customerProvidedSentiment: userEmotion,
-            emotion:this.state.emotion?this.state.emotion:null,
-            confidence:this.state.confidence?this.state.confidence:null,
-            age:this.state.age?this.state.age:null,
-            gender:this.state.gender?this.state.gender:null,
-            // indexId:indexResposne.indexId,
+            emotion: this.state.emotion ? this.state.emotion : null,
+            confidence: this.state.confidence ? this.state.confidence : null,
+            age: this.state.age ? this.state.age : null,
+            gender: this.state.gender ? this.state.gender : null
           },
           headers: {
             'Content-Type': 'application/json',
@@ -418,7 +414,6 @@ export default class Feedback extends PureComponent {
     this.setState({flag: flag})
   }
   setInteractionId (id, sentiment = 'Happy') {
-    console.log('HAAAAA')
     console.log('upload response', sentiment)
     this.setState({
       interactionId: id,
@@ -430,6 +425,7 @@ export default class Feedback extends PureComponent {
   componentWillUnmount () {
     clearInterval(interval)
   }
+
   handleFaceCapture = async uri => {
     try {
       let filename = uri.replace(/^.*[\\\/]/, '')
@@ -455,7 +451,6 @@ export default class Feedback extends PureComponent {
       })
       console.log('response!', response)
       if (response.status == 200) {
-        // console.log('response.data.faceResponse.length!', response.data.faceResponse.length)
         this.aggregateFaceResponses([response.data.faceResponse.faceAttributes])
       }
     } catch (err) {
@@ -500,7 +495,7 @@ export default class Feedback extends PureComponent {
         console.log('neutral case---->', o)
         emotion['neutral'] += response.emotion[o]
       }
-    });
+    })
 
     console.log('all scores---------->', emotion)
     console.log('total confidence')
@@ -634,7 +629,8 @@ export default class Feedback extends PureComponent {
       }
     }
   }
-  rendertext (type) {
+
+  renderViewAVT (type) {
     switch (type) {
       case 'text':
         return (
@@ -694,7 +690,6 @@ export default class Feedback extends PureComponent {
                   onValueChange={vaue => {
                     this.setState({isSelected: vaue})
                   }}
-                  // style={styles.checkbox}
                 />
                 <Text
                   style={{
@@ -781,7 +776,6 @@ export default class Feedback extends PureComponent {
                       <Picker.Item
                         label={res.resolve('AR', this.props.lang)}
                         value='ar-EG'
-                        // style={{ textAlign: 'center' }}
                       />
                       <Picker.Item
                         label={res.resolve('English', this.props.lang)}
@@ -844,18 +838,11 @@ export default class Feedback extends PureComponent {
                       title={res.resolve('Play', this.props.lang)}
                       color='rgb(94, 212, 228);'
                       onPress={() => {
-                        // this.setState({isAudio: true, transparent: false})
                         this._play()
                       }}
                       disabled={!this.state.stoppedRecording}
                     />
                   )}
-                  {/* {this.state.isPlaying && (
-                    <Text style={styles.progressText}>
-                      {' '}
-                      {res.resolve('audPlaying', this.props.lang)}
-                    </Text>
-                  )} */}
                 </View>
               </View>
               <Text style={{color: 'red', fontStyle: 'italic', padding: 22}}>
@@ -872,15 +859,13 @@ export default class Feedback extends PureComponent {
                     onValueChange={vaue => {
                       this.setState({isSelected: vaue})
                     }}
-                    // style={styles.checkbox}
                   />
                   <Text
                     style={{
                       color: 'grey',
                       fontStyle: 'italic',
                       fontSize: 12,
-                      width: Dimensions.get('window').width * 0.75,
-                      // padding: 22,
+                      width: Dimensions.get('window').width * 0.75
                     }}>
                     I consent usage of this recorded data for the purpose of
                     quality assurance.
@@ -903,10 +888,8 @@ export default class Feedback extends PureComponent {
                   <Text
                     style={{
                       color: 'grey',
-                      // fontStyle: 'italic',
                       fontSize: 13,
                       width: Dimensions.get('window').width * 0.7,
-                      // padding: 22,
                     }}>
                     أوافق على استخدام هذه البيانات المسجلة لأغراض ضمان الجودة
                     والتدريب
@@ -934,7 +917,6 @@ export default class Feedback extends PureComponent {
                 {this.props.type != 'text' && (
                   <Picker
                     selectedValue={this.state.selectedValue}
-                    //mode="dropdown"
                     itemStyle={{padding: 0, margin: 0, left: 0, right: 0}}
                     style={{
                       height: 20,
@@ -946,12 +928,8 @@ export default class Feedback extends PureComponent {
                         this.props.lang == 'ar-EG'
                           ? Dimensions.get('window').width / 2 - 60
                           : Dimensions.get('window').width / 2 - 60,
-                      // right: this.props.lang == 'ar-EG' ? 20 : 0,
                       color: '#0054ad',
                       borderColor: '#333',
-
-                      // color: '#fff',
-                      // backgroundColor: 'transparent',
                     }}
                     onValueChange={(itemValue, itemIndex) => {
                       console.log(itemValue)
@@ -1050,7 +1028,6 @@ export default class Feedback extends PureComponent {
                 <Text
                   style={{
                     fontSize: 17,
-                    // fontWeight: 900
                   }}>
                   {res.resolve('satisfied', this.props.lang)}
                 </Text>
@@ -1067,12 +1044,9 @@ export default class Feedback extends PureComponent {
                     flexDirection: 'row',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    // position: 'absolute',
                     width: Dimensions.get('window').width * 1,
                     height: 20,
                     marginTop: -50,
-                    // display: 'flex',
-                    // top: Dimensions.get('window').height * 0.30,
                     alignItems: 'center',
                     flexDirection:
                       this.props.lang == 'ar-EG' ? 'row-reverse' : 'row',
@@ -1107,7 +1081,6 @@ export default class Feedback extends PureComponent {
           </>
         )
       case 'Sad':
-        // case 'text':
         return (
           <>
             <View style={styles.container}>
@@ -1121,7 +1094,6 @@ export default class Feedback extends PureComponent {
                 <Text
                   style={{
                     fontSize: 17,
-                    // fontWeight: 900
                   }}>
                   {res.resolve('unsatisfied', this.props.lang)}
                 </Text>
@@ -1143,8 +1115,6 @@ export default class Feedback extends PureComponent {
                     width: Dimensions.get('window').width * 1,
                     height: 20,
                     marginTop: -50,
-                    // display: 'flex',
-                    // top: Dimensions.get('window').height * 0.30,
                     alignItems: 'center',
                     flexDirection:
                       this.props.lang == 'ar-EG' ? 'row-reverse' : 'row',
@@ -1206,10 +1176,6 @@ export default class Feedback extends PureComponent {
                   }}>
                   {res.resolve('providefeed', this.props.lang)}
                 </Text>
-                {/* <Image
-                  style={styles.image}
-                  source={require('../resouces/man-smile1.png')}
-                /> */}
               </View>
               <View
                 style={{
@@ -1305,10 +1271,6 @@ export default class Feedback extends PureComponent {
                   }}>
                   {res.resolve('providefeed', this.props.lang)}
                 </Text>
-                {/* <Image
-                    style={styles.image}
-                    source={require('../resouces/man-smile1.png')}
-                  /> */}
               </View>
               <View
                 style={{
@@ -1394,7 +1356,6 @@ export default class Feedback extends PureComponent {
     if (this.state.showUploadVideo == true) {
       this.setState({
         type: 'video',
-        // timer: 60,
         label: res.resolve('startRecord', this.props.lang),
         showUploadVideo: false,
       })
@@ -1472,6 +1433,7 @@ export default class Feedback extends PureComponent {
   setRecorded (flag) {
     this.setState({showUploadVideo: flag})
   }
+
   handleSubmitVideo = async () => {
     this.setTextError(null)
     console.log(this.state.timer)
@@ -1484,7 +1446,6 @@ export default class Feedback extends PureComponent {
       this.setSubmitLoading(true)
       try {
         let bodyFormData = new FormData()
-        // bodyFormData.append('file', captured);
         let filename = this.state.captured.replace(/^.*[\\\/]/, '')
         bodyFormData.append('file', {
           name: filename,
@@ -1503,19 +1464,9 @@ export default class Feedback extends PureComponent {
         })
         if (response.status == 200) {
           console.log(response.data, JSON.stringify(bodyFormData))
-
-          // if (response.status == 200) {
-          //   if (!this.state.allEmotions.length) {
-          //     if(response.data && response.data.length && response.data[0].faceAttributes){
-          //       this.aggregateFaceResponses([response.data[0].faceAttributes])
-          //     }
-          //   }
-          // }
-
           try {
             var bodyFormData1 = new FormData()
             let filename = this.state.uri.replace(/^.*[\\\/]/, '')
-            // uri: Platform.OS === 'android' ? image.uri : image.uri.replace('file://', ''),
             bodyFormData1.append('name', filename)
             bodyFormData1.append('file', {
               name: filename,
@@ -1549,8 +1500,6 @@ export default class Feedback extends PureComponent {
                   ...(await this.handleAccessToken()),
                 },
               })
-
-              // console.log('upload response', response1)
             })
 
             console.log(
@@ -1592,7 +1541,7 @@ export default class Feedback extends PureComponent {
         <Spinner
           visible={this.state.flag}
           textContent={res.resolve('PWT', this.props.lang)}
-          textStyle={{color: '#FFF'}}
+          textStyle={styles.main}
           animation='fade'
           overlayColor='#00336777'
         />
@@ -1604,28 +1553,12 @@ export default class Feedback extends PureComponent {
               styles.scrollView,
               this.state.isRTL && {transform: [{scaleX: -1}]},
             ]}>
-            <View
-              style={{
-                backgroundColor: '#FFF',
-                elevation: 5,
-                padding: 10,
-                borderColor: 'rgba(0, 0, 0, 0.12)',
-                borderWidth: 2,
-                padding: 0,
-                // borderStyle: 'solid',
-                borderRadius: 10,
-                width: Dimensions.get('window').width * 0.93,
-              }}>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row-reverse',
-                }}>
+            <View style={styles.main1}>
+              <View style={styles.main2}>
                 <View
                   style={{
                     width: '10%',
                     height: 50,
-                    // backgroundColor: 'powderblue',
                   }}>
                   <TouchableOpacity
                     style={{
@@ -1639,41 +1572,18 @@ export default class Feedback extends PureComponent {
                       this.props.endFlow()
                     }}>
                     <Image
-                      style={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: 100,
-                        resizeMode: 'contain',
-                      }}
+                      style={styles.clbStl}
                       source={require('../resouces/close_blue.png')}
                     />
                   </TouchableOpacity>
                 </View>
-                <View
-                  style={{
-                    // color: 'rgb(94, 212, 228)',
-                    width: '90%',
-                    height: 50,
-                    right: this.state.isRTL ? 10 : 0,
-                  }}>
-                  <Text
-                    style={{
-                      color: '#0054ad',
-                      fontSize: 18,
-                      top: 10,
-                      left: this.state.isRTL ? 0 : 10,
-                    }}>
+                <View style={styles.snfAln}>
+                  <Text style={styles.snfAln2}>
                     {res.resolve('snf', this.props.lang)}
                   </Text>
                 </View>
               </View>
-              <View
-                style={{
-                  // borderColor: 'rgb(94, 212, 228)',
-                  borderBottomColor: 'rgba(0, 0, 0, 0.2)',
-                  borderBottomWidth: 1,
-                }}
-              />
+              <View style={styles.clear} />
 
               {this.rendertext(
                 this.state.type || this.state.check || this.props.type,
@@ -1747,112 +1657,3 @@ export default class Feedback extends PureComponent {
   }
 }
 
-const styles = StyleSheet.create({
-  btnAlignment: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  scrollView: {
-    // backgroundColor: Colors.lighter,
-  },
-  buttonFrm: {
-    marginTop: 20,
-    padding: 20,
-  },
-  textArea: {
-    borderColor: 'rgba(0, 0, 0, 0.4)',
-    borderWidth: 1,
-    textAlignVertical: 'top',
-    padding: 5,
-    justifyContent: 'flex-start',
-    // borderStyle: 'solid',
-    borderRadius: 1,
-  },
-  imageEmotion: {
-    marginTop: 20,
-    top: 310,
-    bottom: 310,
-    left: 240,
-    right: 85,
-    opacity: 1,
-    flex: 1,
-    width: null,
-    height: null,
-    resizeMode: 'contain',
-    borderRadius: 100,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  image: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 300,
-    height: 285,
-    marginTop: -50,
-    // marginLeft: -25,
-    transform: [{scale: 0.5}],
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF',
-  },
-  controls: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1,
-  },
-  progressText: {
-    paddingTop: 6,
-    fontSize: 15,
-    color: '#777',
-  },
-  button: {
-    padding: 20,
-    backgroundColor: '#000',
-  },
-  disabledButtonText: {
-    color: '#eee',
-  },
-  buttonText: {
-    fontSize: 20,
-    color: '#fff',
-  },
-  activeButtonText: {
-    fontSize: 20,
-    color: '#B81F00',
-  },
-})
