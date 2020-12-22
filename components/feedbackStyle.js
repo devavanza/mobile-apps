@@ -1,3 +1,7 @@
+import {StyleSheet, Dimensions} from 'react-native'
+import {Colors} from 'react-native/Libraries/NewAppScreen'
+
+
 module.exports = StyleSheet.create({
   main: {color: '#FFF'},
   clear: {
@@ -62,12 +66,6 @@ module.exports = StyleSheet.create({
     borderRadius: 100,
     resizeMode: 'contain',
   },
-  snfAln2: {
-    color: '#0054ad',
-    fontSize: 18,
-    top: 10,
-    left: this.state.isRTL ? 0 : 10,
-  },
   engine: {
     position: 'absolute',
     right: 0,
@@ -90,12 +88,6 @@ module.exports = StyleSheet.create({
     fontWeight: '400',
     color: Colors.dark,
   },
-  snfAln: {
-    // color: 'rgb(94, 212, 228)',
-    width: '90%',
-    height: 50,
-    right: this.state.isRTL ? 10 : 0,
-  },
   highlight: {
     fontWeight: '700',
   },
@@ -105,7 +97,6 @@ module.exports = StyleSheet.create({
     width: 300,
     height: 285,
     marginTop: -50,
-    // marginLeft: -25,
     transform: [{scale: 0.5}],
   },
   footer: {
