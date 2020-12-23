@@ -5,12 +5,13 @@ import {
   View,
   Text,
   Image,
-  CheckBox,
   Button,
   Dimensions,
   TouchableOpacity,
-  Picker,
+  // Picker,
 } from 'react-native'
+import {Picker} from '@react-native-community/picker'
+import CheckBox from '@react-native-community/checkbox'
 
 
 const Audio = ({
@@ -23,50 +24,31 @@ const Audio = ({
   stoppedRecording,
   error,
   setState,
-  _this
+  _this,
 }) => {
   return (
     <>
       <View style={styles.container}>
         <View style={{...styles.controls}}>
-          <Text
-            style={{
-              textAlign: 'center',
-              color: 'grey',
-              // fontStyle: 'italic',
-              padding: 5,
-              fontSize: 15,
-            }}>
-            {res.resolve('HNR', lang)}
-          </Text>
+          <Text style={styles.tCompo1}>{res.resolve('HNR', lang)}</Text>
           <>
             {type != 'text' && (
               <Picker
-                itemStyle={{padding: 0, margin: 0, left: 0, right: 0}}
+                itemStyle={styles.tCompo2}
                 selectedValue={selectedValue}
-                //mode="dropdown"
                 style={{
-                  height: 20,
+                  ...styles.tCompo3,
                   width: lang == 'ar-EG' ? Dimensions.get('window').width : 120,
                   left:
                     lang == 'ar-EG'
                       ? Dimensions.get('window').width / 2 - 60
                       : 0,
-                  // right: lang == 'ar-EG' ? 20 : 0,
-                  color: '#0054ad',
-                  borderColor: '#333',
-                  // backgroundColor: 'transparent',
-                  // CenterContentStyle,
                 }}
                 onValueChange={(itemValue, itemIndex) => {
                   console.log(itemValue)
                   _this.setState({selectedValue: itemValue})
                 }}>
-                <Picker.Item
-                  label={res.resolve('AR', lang)}
-                  value='ar-EG'
-                  // style={{ textAlign: 'center' }}
-                />
+                <Picker.Item label={res.resolve('AR', lang)} value='ar-EG' />
                 <Picker.Item
                   label={res.resolve('English', lang)}
                   value='en-US'
@@ -77,14 +59,7 @@ const Audio = ({
           </>
 
           <TouchableOpacity
-            style={{
-              width: 200,
-              height: 200,
-              borderRadius: 100,
-              resizeMode: 'contain',
-              marginTop: 5,
-              marginLeft: '0%',
-            }}
+            style={styles.tCompo4}
             onPressIn={() => {
               _this._record()
             }}
@@ -92,31 +67,18 @@ const Audio = ({
               _this._stop()
             }}>
             <Image
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
+              style={styles.tCompo5}
               source={require('../resouces/mic-audio.png')}
             />
           </TouchableOpacity>
 
-          <View
-            style={{
-              flexDirection: 'row',
-              left: 0,
-            }}>
+          <View style={styles.tCompo6}>
             {!isPlaying && (
               <Text style={styles.progressText}>
                 {60 - currentTime + ' ' + res.resolve('secRem', lang)}
               </Text>
             )}
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginLeft: 10,
-              }}
-            />
+            <View style={styles.tCompo7} />
             {!isPlaying && (
               <Button
                 title={res.resolve('Play', lang)}
@@ -130,56 +92,31 @@ const Audio = ({
           </View>
         </View>
 
-        <Text style={{color: 'red', fontStyle: 'italic', padding: 22}}>
-          {error}
-        </Text>
+        <Text style={styles.tCompo8}>{error}</Text>
         {lang == 'en-US' && (
-          <View
-            style={{
-              flexDirection: 'row',
-              left: 10,
-            }}>
+          <View style={styles.tCompo9}>
             <CheckBox
               value={isSelected}
               onValueChange={vaue => {
                 _this.setState({isSelected: vaue})
               }}
-              // style={styles.checkbox}
             />
-            <Text
-              style={{
-                color: 'grey',
-                fontStyle: 'italic',
-                fontSize: 12,
-                width: Dimensions.get('window').width * 0.75,
-                // padding: 22,
-              }}>
+            <Text style={styles.tCompo10}>
               I consent usage of this recorded data for the purpose of quality
               assurance.
             </Text>
           </View>
         )}
         {lang == 'ar-EG' && (
-          <View
-            style={{
-              flexDirection: 'row',
-              marginHorizontal: 10,
-            }}>
+          <View style={styles.tCompo9}>
             <CheckBox
               value={isSelected}
               onValueChange={vaue => {
                 _this.setState({isSelected: vaue})
               }}
-              style={{top: 3}}
+              style={styles.tCompo11}
             />
-            <Text
-              style={{
-                color: 'grey',
-                // fontStyle: 'italic',
-                fontSize: 13,
-                width: Dimensions.get('window').width * 0.7,
-                // padding: 22,
-              }}>
+            <Text style={styles.tCompo13}>
               أوافق على استخدام هذه البيانات المسجلة لأغراض ضمان الجودة والتدريب
             </Text>
           </View>

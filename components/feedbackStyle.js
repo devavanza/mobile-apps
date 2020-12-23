@@ -1,18 +1,193 @@
 import {StyleSheet, Dimensions} from 'react-native'
 import {Colors} from 'react-native/Libraries/NewAppScreen'
 
-
 module.exports = StyleSheet.create({
   main: {color: '#FFF'},
+  linebreak: {
+    width: 10,
+    height: 20,
+  },
+  linebreakSml: {
+    width: 10,
+    height: 10,
+  },
+  happyStyle: {
+    fontSize: 17,
+    // fontWeight: 900
+  },
+  newStyleYN: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 210,
+  },
+  compo1: {width: 150, height: 150, textAlign: 'center'},
+  compo2: {
+    textAlign: 'center',
+    marginLeft: Dimensions.get('window').width * 0.03,
+  },
+  compo3: {width: 150, height: 150},
+  compo4: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 100,
+    resizeMode: 'contain',
+  },
+  compo5: {
+    textAlign: 'center',
+    marginLeft: Dimensions.get('window').width * 0.03,
+    height: 20,
+  },
+  compo6: {
+    width: 10,
+    height: 50,
+  },
+  compo7: {color: '#FFF'},
+  yesNoStyle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: Dimensions.get('window').width * 1,
+    height: 20,
+    marginTop: -50,
+    alignItems: 'center',
+  },
+  compo8: {
+    backgroundColor: '#FFF',
+    elevation: 5,
+    padding: 10,
+    borderColor: 'rgba(0, 0, 0, 0.12)',
+    borderWidth: 2,
+    padding: 0,
+    // borderStyle: 'solid',
+    borderRadius: 10,
+    width: Dimensions.get('window').width * 0.93,
+  },
+  compo9: {
+    flex: 1,
+    flexDirection: 'row-reverse',
+  },
+  compo11: {
+    top: 7,
+  },
+  compo12: {
+    width: 30,
+    height: 30,
+    borderRadius: 100,
+    resizeMode: 'contain',
+  },
+  compo10: {
+    width: '10%',
+    height: 50,
+    // backgroundColor: 'powderblue',
+  },
+  compo13: {
+    // color: 'rgb(94, 212, 228)',
+    width: '90%',
+    height: 50,
+  },
+  compo14: {
+    color: '#0054ad',
+    fontSize: 18,
+    top: 10,
+  },
+  compo15: {
+    // borderColor: 'rgb(94, 212, 228)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.2)',
+    borderBottomWidth: 1,
+  },
+  tCompo1: {
+    textAlign: 'center',
+    color: 'grey',
+    padding: 5,
+    fontSize: 15,
+  },
+  tCompo2: {padding: 0, margin: 0, left: 0, right: 0},
+  tCompo3: {height: 20, color: '#0054ad', borderColor: '#333'},
   clear: {
     // borderColor: 'rgb(94, 212, 228)',
     borderBottomColor: 'rgba(0, 0, 0, 0.2)',
     borderBottomWidth: 1,
   },
+  tCompo4: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    resizeMode: 'contain',
+    marginTop: 5,
+    marginLeft: '0%',
+  },
+  tCompo5: {
+    width: '100%',
+    height: '100%',
+  },
+  tCompo6: {
+    flexDirection: 'row',
+    left: 0,
+  },
+  tCompo7: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  tCompo8: {color: 'red', fontStyle: 'italic', padding: 22},
+  tCompo9: {
+    flexDirection: 'row',
+    left: 10,
+  },
+  tCompo10: {
+    color: 'grey',
+    fontStyle: 'italic',
+    fontSize: 12,
+    width: Dimensions.get('window').width * 0.75,
+  },
+  tCompo11: {top: 3},
+  tCompo13: {
+    color: 'grey',
+    fontSize: 13,
+    width: Dimensions.get('window').width * 0.7,
+  },
+  tCompo14: {flex: 1, padding: 10},
+  tCompo15: {color: 'grey', fontStyle: 'italic'},
+  tCompo16: {color: 'red', fontStyle: 'italic'},
+  tCompo17: {
+    color: 'grey',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+  },
+  tCompo18: {
+    height: Dimensions.get('window').height * 0.5,
+    width: Dimensions.get('window').width * 0.5,
+    marginTop: 25,
+    marginLeft: Dimensions.get('window').width * 0.21,
+    borderColor: 'rgba(0, 0, 0, 0.3)',
+    borderWidth: 0,
+    borderRadius: 1,
+  },
+  pCompo2: {
+    color: 'grey',
+    fontStyle: 'italic',
+    fontSize: 12,
+    width: Dimensions.get('window').width * 0.7,
+    // padding: 22,
+  },
+  fCompo1: {flex: 1, padding: 10},
+  fCompo2: {flexDirection: 'row'},
+  fCompo3:{width: 150, height: 150, textAlign: 'center'},
+  pCompo3: {
+    color: 'grey',
+    // fontStyle: 'italic',
+    fontSize: 15,
+    width: Dimensions.get('window').width * 0.7,
+    // padding: 22,
+  },
   main2: {
     flex: 1,
     flexDirection: 'row-reverse',
   },
+  pCompo1: {flex: 1, padding: 10},
   main1: {
     backgroundColor: '#FFF',
     elevation: 5,

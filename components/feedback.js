@@ -10,7 +10,6 @@ import Video from './renderVideo'
 import api from './api'
 import {
   SafeAreaView,
-  StyleSheet,
   ScrollView,
   View,
   Text,
@@ -18,14 +17,9 @@ import {
   StatusBar,
   Button,
   TouchableHighlight,
-  Dimensions,
   TouchableOpacity,
-  Alert,
   PermissionsAndroid,
 } from 'react-native'
-
-import {Colors} from 'react-native/Libraries/NewAppScreen'
-import axios from 'axios'
 import {RNCamera} from 'react-native-camera'
 import PropTypes from 'prop-types'
 import Sound from 'react-native-sound'
@@ -63,14 +57,11 @@ export default class Feedback extends PureComponent {
     this.handleSubmitAudio = api.handleSubmitAudio.bind(this)
     this.handleSubmit = api.handleSubmit.bind(this)
     this.handleSubmitVideo = api.handleSubmitVideo.bind(this)
-    this.requestLocationPermission();
-    // this.setTextError=this.setTextError.bind(this)
-    // this.aggregateFaceResponses = api.aggregateFaceResponses.bind(this)
-    // this.handleFaceCapture = api.handleFaceCapture.bind(this)
+    this.requestLocationPermission()
+    this.handleSatisfaction = api.handleSatisfaction.bind(this)
+    this.handleFaceCapture = api.handleFaceCapture.bind(this)
   }
-  async componentDidMount () {
-    // await this.requestLocationPermission()
-  }
+  async componentDidMount () {}
   componentWillUnmount () {
     clearInterval(interval)
   }
@@ -82,7 +73,6 @@ export default class Feedback extends PureComponent {
 
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log(`You can use the ${msg}`)
-      // alert(`You can use the ${msg}`)
     } else {
       console.log(`${msg} permission denied`)
       alert(`${msg} permission denied`)
@@ -90,7 +80,6 @@ export default class Feedback extends PureComponent {
   }
 
   async requestLocationPermission () {
-    
     try {
       this.grantPermission(PermissionsAndroid.PERMISSIONS.CAMERA, 'CAMERA')
       this.grantPermission(
@@ -371,17 +360,8 @@ export default class Feedback extends PureComponent {
           <>
             <View style={styles.container}>
               <View style={styles.controls}>
-                <View
-                  style={{
-                    width: 10,
-                    height: 20,
-                  }}
-                />
-                <Text
-                  style={{
-                    fontSize: 17,
-                    // fontWeight: 900
-                  }}>
+                <View style={styles.linebreak} />
+                <Text style={styles.happyStyle}>
                   {res.resolve('satisfied', this.props.lang)}
                 </Text>
                 <Image
@@ -394,16 +374,7 @@ export default class Feedback extends PureComponent {
                 />
                 <View
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    // position: 'absolute',
-                    width: Dimensions.get('window').width * 1,
-                    height: 20,
-                    marginTop: -50,
-                    // display: 'flex',
-                    // top: Dimensions.get('window').height * 0.30,
-                    alignItems: 'center',
+                    ...styles.yesNoStyle,
                     flexDirection:
                       this.props.lang == 'ar-EG' ? 'row-reverse' : 'row',
                   }}>
@@ -413,12 +384,7 @@ export default class Feedback extends PureComponent {
                     onPress={() => this.handleSatisfaction('Yes', 'positive')}
                     disabled={this.state.disabledVid}
                   />
-                  <View
-                    style={{
-                      width: 10,
-                      height: 10,
-                    }}
-                  />
+                  <View style={styles.linebreakSml} />
                   <Button
                     title={res.resolve('no', this.props.lang)}
                     color='rgb(94, 212, 228)'
@@ -427,12 +393,7 @@ export default class Feedback extends PureComponent {
                   />
                 </View>
               </View>
-              <View
-                style={{
-                  width: 10,
-                  height: 20,
-                }}
-              />
+              <View style={styles.linebreak} />
             </View>
           </>
         )
@@ -441,17 +402,8 @@ export default class Feedback extends PureComponent {
           <>
             <View style={styles.container}>
               <View style={styles.controls}>
-                <View
-                  style={{
-                    width: 10,
-                    height: 20,
-                  }}
-                />
-                <Text
-                  style={{
-                    fontSize: 17,
-                    // fontWeight: 900
-                  }}>
+                <View style={styles.linebreak} />
+                <Text style={styles.happyStyle}>
                   {res.resolve('unsatisfied', this.props.lang)}
                 </Text>
                 <Image
@@ -465,53 +417,28 @@ export default class Feedback extends PureComponent {
 
                 <View
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'centxer',
-                    // position: 'absolute',
-                    width: Dimensions.get('window').width * 1,
-                    height: 20,
-                    marginTop: -50,
-                    // display: 'flex',
-                    // top: Dimensions.get('window').height * 0.30,
-                    alignItems: 'center',
+                    ...styles.yesNoStyle,
                     flexDirection:
                       this.props.lang == 'ar-EG' ? 'row-reverse' : 'row',
                   }}>
                   <Button
                     title={res.resolve('yes', this.props.lang)}
                     color='rgb(23, 98, 184)'
-                    style={{
-                      width: 10,
-                      height: 10,
-                    }}
+                    style={styles.linebreakSml}
                     onPress={() => this.handleSatisfaction('Yes', 'negative')}
                     disabled={this.state.disabledVid}
                   />
-                  <View
-                    style={{
-                      width: 10,
-                      height: 10,
-                    }}
-                  />
+                  <View style={styles.linebreakSml} />
                   <Button
                     title={res.resolve('no', this.props.lang)}
                     color='rgb(94, 212, 228)'
-                    style={{
-                      width: 10,
-                      height: 10,
-                    }}
+                    style={styles.linebreakSml}
                     onPress={() => this.handleSatisfaction('No', 'positive')}
                     disabled={this.state.disabledVid}
                   />
                 </View>
               </View>
-              <View
-                style={{
-                  width: 10,
-                  height: 20,
-                }}
-              />
+              <View style={styles.linebreak} />
             </View>
           </>
         )
@@ -520,91 +447,47 @@ export default class Feedback extends PureComponent {
           <>
             <View style={styles.container}>
               <View style={{...styles.controls}}>
-                <View
-                  style={{
-                    width: 10,
-                    height: 20,
-                  }}
-                />
-                <Text
-                  style={{
-                    fontSize: 17,
-                  }}>
+                <View style={styles.linebreak} />
+                <Text style={styles.happyStyle}>
                   {res.resolve('providefeed', this.props.lang)}
                 </Text>
               </View>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: 210,
-                }}>
-                <View style={{width: 150, height: 150, textAlign: 'center'}}>
+              <View style={styles.newStyleYN}>
+                <View style={styles.fCompo3}>
                   <TouchableOpacity
                     onPress={() => this.handleSatisfaction('Yes', 'neutral')}>
                     <Image
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 100,
-                        resizeMode: 'contain',
-                      }}
+                      style={styles.compo1}
                       source={
                         this.props.gender == 'female'
                           ? require('../resouces/woman-smile2.png')
                           : require('../resouces/man-smile2.png')
                       }
                     />
-                    <Text
-                      style={{
-                        textAlign: 'center',
-                        marginLeft: Dimensions.get('window').width * 0.03,
-                      }}>
+                    <Text style={styles.compo2}>
                       {res.resolve('ok', this.props.lang)}
                     </Text>
                   </TouchableOpacity>
                 </View>
-                <View
-                  style={{
-                    width: 10,
-                    height: 10,
-                  }}
-                />
-                <View style={{width: 150, height: 150}}>
+                <View style={styles.linebreakSml} />
+                <View style={styles.compo3}>
                   <TouchableOpacity
                     onPress={() => this.handleSatisfaction('Yes', 'negative')}>
                     <Image
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 100,
-                        resizeMode: 'contain',
-                      }}
+                      style={styles.compo4}
                       source={
                         this.props.gender == 'female'
                           ? require('../resouces/woman-smile3.png')
                           : require('../resouces/man-smile3.png')
                       }
                     />
-                    <Text
-                      style={{
-                        textAlign: 'center',
-                        marginLeft: Dimensions.get('window').width * 0.03,
-                        height: 20,
-                      }}>
+                    <Text style={styles.compo5}>
                       {res.resolve('sad', this.props.lang)}
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
-              <View
-                style={{
-                  width: 10,
-                  height: 20,
-                }}
-              />
+              <View style={styles.linebreak} />
             </View>
           </>
         )
@@ -613,97 +496,47 @@ export default class Feedback extends PureComponent {
           <>
             <View style={styles.container}>
               <View style={styles.controls}>
-                <View
-                  style={{
-                    width: 10,
-                    height: 20,
-                  }}
-                />
-                <Text
-                  style={{
-                    fontSize: 17,
-                    // fontWeight: 900
-                  }}>
+                <View style={styles.linebreak} />
+                <Text style={styles.happyStyle}>
                   {res.resolve('providefeed', this.props.lang)}
                 </Text>
-                {/* <Image
-                    style={styles.image}
-                    source={require('../resouces/man-smile1.png')}
-                  /> */}
               </View>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: 210,
-                }}>
-                <View style={{width: 150, height: 150, textAlign: 'center'}}>
+              <View style={styles.newStyleYN}>
+                <View style={styles.compo1}>
                   <TouchableOpacity
                     onPress={() => this.handleSatisfaction('Yes', 'happy')}>
                     <Image
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 100,
-                        resizeMode: 'contain',
-                      }}
+                      style={styles.compo4}
                       source={
                         this.props.gender == 'female'
                           ? require('../resouces/woman-smile1.png')
                           : require('../resouces/man-smile1.png')
                       }
                     />
-                    <Text
-                      style={{
-                        textAlign: 'center',
-                        marginLeft: Dimensions.get('window').width * 0.03,
-                        height: 20,
-                      }}>
+                    <Text style={styles.compo5}>
                       {res.resolve('happy', this.props.lang)}
                     </Text>
                   </TouchableOpacity>
                 </View>
-                <View
-                  style={{
-                    width: 10,
-                    height: 10,
-                  }}
-                />
-                <View style={{width: 150, height: 150}}>
+                <View style={styles.linebreakSml} />
+                <View style={styles.compo3}>
                   <TouchableOpacity
                     onPress={() => this.handleSatisfaction('Yes', 'negative')}>
                     <Image
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 100,
-                        resizeMode: 'contain',
-                      }}
+                      style={styles.compo4}
                       source={
                         this.props.gender == 'female'
                           ? require('../resouces/woman-smile2.png')
                           : require('../resouces/man-smile2.png')
                       }
                     />
-                    <Text
-                      style={{
-                        textAlign: 'center',
-                        marginLeft: Dimensions.get('window').width * 0.03,
-                        height: 20,
-                      }}>
+                    <Text style={styles.compo5}>
                       {res.resolve('ok', this.props.lang)}
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
-              <View
-                style={{
-                  width: 10,
-                  height: 50,
-                }}
-              />
+              <View style={styles.compo6} />
             </View>
           </>
         )
@@ -715,7 +548,6 @@ export default class Feedback extends PureComponent {
     if (this.state.showUploadVideo == true) {
       this.setState({
         type: 'video',
-        // timer: 60,
         label: res.resolve('startRecord', this.props.lang),
         showUploadVideo: false,
       })
@@ -809,103 +641,6 @@ export default class Feedback extends PureComponent {
     })
   }
 
-  handleSatisfaction = async (value, userEmotion) => {
-    console.log('Satisfaction called', value, userEmotion)
-    if (value != 'No') {
-      this.setSubmitLoading(true)
-    }
-    let type
-    switch (this.props.type) {
-      case 'text':
-        type = 'T'
-        break
-      case 'video':
-        type = 'V'
-        break
-      case 'audio':
-        type = 'A'
-        break
-    }
-    if (value == 'No') {
-      this.setOther(true, userEmotion)
-    }
-    if (value == 'Yes') {
-      try {
-        let intId = this.state.interactionId
-        let response = await axios({
-          method: 'post',
-          url: `${this.state.baseURL}/PUBLIC/Feedback/submitInteraction`,
-          data: {
-            //   ...info,
-            type,
-            interactionId: intId,
-            customerProvidedSentiment: userEmotion,
-            emotion: this.state.emotion ? this.state.emotion : null,
-            confidence: this.state.confidence ? this.state.confidence : null,
-            age: this.state.age ? this.state.age : null,
-            gender: this.state.gender ? this.state.gender : null,
-            // indexId:indexResposne.indexId,
-          },
-          headers: {
-            'Content-Type': 'application/json',
-            ...(await this.handleAccessToken()),
-          },
-        })
-        console.log('Submit response---------------TEXT----->', response)
-        if (response.status == 200) {
-          this.setSubmitLoading(false)
-          this.setCompleted(true)
-          Alert.alert(
-            res.resolve('alert', this.props.lang),
-            res.resolve('feedSubmitted', this.props.lang),
-          )
-          this.props.endFlow()
-        }
-      } catch (err) {
-        Alert.alert(
-          res.resolve('alert', this.props.lang),
-          res.resolve('feedSubmittedErr', this.props.lang),
-        )
-        this.setSubmitLoading(false)
-      }
-    }
-  }
-
-  handleFaceCapture = async uri => {
-    try {
-      let filename = uri.replace(/^.*[\\\/]/, '')
-      let bodyFormData = new FormData()
-      bodyFormData.append('file', {
-        name: filename,
-        uri: uri,
-        type: 'image/png',
-      })
-
-      console.log(
-        'reqsent!',
-        `${this.props.baseURL}/PUBLIC/Feedback/faceAttributes`,
-      )
-      let response = await axios({
-        method: 'post',
-        url: `${this.props.baseURL}/PUBLIC/Feedback/faceAttributes`,
-        data: bodyFormData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          ...(await this.handleAccessToken()),
-        },
-      })
-      console.log('response!', response)
-      if (response.status == 200) {
-        this.setState({captured: uri})
-        // console.log('response.data.faceResponse.length!', response.data.faceResponse.length)
-        this.aggregateFaceResponses([response.data.faceResponse.faceAttributes])
-      }
-    } catch (err) {
-      console.log('response!', err)
-      console.log('Error in uploading face photo', err.stack)
-    }
-  }
-
   aggregateFaceResponses = faceResponses => {
     let emotion = {
       negative: 0,
@@ -986,7 +721,7 @@ export default class Feedback extends PureComponent {
         <Spinner
           visible={this.state.flag}
           textContent={res.resolve('PWT', this.props.lang)}
-          textStyle={{color: '#FFF'}}
+          textStyle={styles.compo7}
           animation='fade'
           overlayColor='#00336777'
         />
@@ -998,86 +733,44 @@ export default class Feedback extends PureComponent {
               styles.scrollView,
               this.state.isRTL && {transform: [{scaleX: -1}]},
             ]}>
-            <View
-              style={{
-                backgroundColor: '#FFF',
-                elevation: 5,
-                padding: 10,
-                borderColor: 'rgba(0, 0, 0, 0.12)',
-                borderWidth: 2,
-                padding: 0,
-                // borderStyle: 'solid',
-                borderRadius: 10,
-                width: Dimensions.get('window').width * 0.93,
-              }}>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row-reverse',
-                }}>
-                <View
-                  style={{
-                    width: '10%',
-                    height: 50,
-                    // backgroundColor: 'powderblue',
-                  }}>
+            <View style={styles.compo8}>
+              <View style={styles.compo9}>
+                <View style={styles.compo10}>
                   <TouchableOpacity
                     style={{
-                      top: 7,
                       left: this.state.isRTL ? 'auto' : 0,
                       right: this.state.isRTL ? 10 : 'auto',
-
-                      // left: this.state.isRTL ? 10 : 0,
+                      ...styles.compo11,
                     }}
                     onPress={() => {
                       this.props.endFlow()
                     }}>
                     <Image
-                      style={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: 100,
-                        resizeMode: 'contain',
-                      }}
+                      style={styles.compo12}
                       source={require('../resouces/close_blue.png')}
                     />
                   </TouchableOpacity>
                 </View>
                 <View
-                  style={{
-                    // color: 'rgb(94, 212, 228)',
-                    width: '90%',
-                    height: 50,
-                    right: this.state.isRTL ? 10 : 0,
-                  }}>
+                  style={{...styles.compo13, right: this.state.isRTL ? 10 : 0}}>
                   <Text
                     style={{
-                      color: '#0054ad',
-                      fontSize: 18,
-                      top: 10,
+                      ...styles.compo14,
                       left: this.state.isRTL ? 0 : 10,
                     }}>
                     {res.resolve('snf', this.props.lang)}
                   </Text>
                 </View>
               </View>
-              <View
-                style={{
-                  // borderColor: 'rgb(94, 212, 228)',
-                  borderBottomColor: 'rgba(0, 0, 0, 0.2)',
-                  borderBottomWidth: 1,
-                }}
-              />
-
+              <View style={styles.compo15} />
               {this.rendertext(
                 this.state.type || this.state.check || this.props.type,
               )}
-
-              <View style={{flexDirection: 'row'}}>
+              <View style={styles.fCompo2}>
                 {this.props.type == 'text' &&
                   !this.state.check &&
                   !this.state.completed && (
-                    <View style={{flex: 1, padding: 10}}>
+                    <View style={styles.fCompo1}>
                       <Button
                         title={this.state.label}
                         color='rgb(23, 98, 184);'
@@ -1089,7 +782,7 @@ export default class Feedback extends PureComponent {
                 {this.props.type == 'audio' &&
                   !this.state.check &&
                   !this.state.completed && (
-                    <View style={{flex: 1, padding: 10}}>
+                    <View style={styles.fCompo1}>
                       <Button
                         title={res.resolve('submitFeedback', this.props.lang)}
                         color='rgb(23, 98, 184);'
@@ -1103,16 +796,12 @@ export default class Feedback extends PureComponent {
                 {this.props.type == 'video' &&
                   !this.state.check &&
                   !this.state.completed && (
-                    <View style={{flex: 1, padding: 10}}>
+                    <View style={styles.fCompo1}>
                       <Button
                         title={this.state.label}
                         color='rgb(23, 98, 184);'
                         onPress={this.startRecording.bind(this)}
-                        disabled={
-                          this.state.disabledVid
-                          // ? !this.state.isSelected
-                          // : true
-                        }
+                        disabled={this.state.disabledVid}
                         style={styles.buttonFrm}
                       />
                     </View>
@@ -1120,7 +809,7 @@ export default class Feedback extends PureComponent {
                 {this.state.showUploadVideo &&
                   !this.state.check &&
                   !this.state.completed && (
-                    <View style={{flex: 1, padding: 10}}>
+                    <View style={styles.fCompo1}>
                       <Button
                         title={res.resolve('submitFeedback', this.props.lang)}
                         color='rgb(23, 98, 184);'

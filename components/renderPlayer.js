@@ -1,10 +1,12 @@
 import React from 'react'
-import {View, Text, CheckBox, Dimensions} from 'react-native'
+import {View, Text, Dimensions} from 'react-native'
+import CheckBox from '@react-native-community/checkbox'
+
 import VideoPlayer from 'react-native-video-player'
 import styles from './feedbackStyle'
 const Player = ({lang, uri, error, isSelected, setState,_this}) => {
   return (
-    <View style={{flex: 1, padding: 10}}>
+    <View style={styles.pCompo1}>
       <VideoPlayer
         video={{uri: uri}}
         videoWidth={1600}
@@ -24,16 +26,9 @@ const Player = ({lang, uri, error, isSelected, setState,_this}) => {
             onValueChange={vaue => {
               _this.setState({isSelected: vaue})
             }}
-            // style={styles.checkbox}
           />
           <Text
-            style={{
-              color: 'grey',
-              fontStyle: 'italic',
-              fontSize: 12,
-              width: Dimensions.get('window').width * 0.7,
-              // padding: 22,
-            }}>
+            style={styles.pCompo2}>
             I consent usage of this recorded data for the purpose of quality
             assurance.
           </Text>
@@ -50,16 +45,10 @@ const Player = ({lang, uri, error, isSelected, setState,_this}) => {
             onValueChange={vaue => {
               _this.setState({isSelected: vaue})
             }}
-            style={{top: 3}}
+            style={styles.tCompo11}
           />
           <Text
-            style={{
-              color: 'grey',
-              // fontStyle: 'italic',
-              fontSize: 15,
-              width: Dimensions.get('window').width * 0.7,
-              // padding: 22,
-            }}>
+            style={styles.pCompo3}>
             أوافق على استخدام هذه البيانات المسجلة لأغراض ضمان الجودة والتدريب
           </Text>
         </View>

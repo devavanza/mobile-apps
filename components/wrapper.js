@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Dimensions } from 'react-native';
-import res from './langResouurces';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import res from './langResources';
 import Feedback from './feedback.js';
 
 export default class Wrapper extends Component {
@@ -351,7 +350,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 210,
     height: 60,
-    resizeMode: 'contain',
     borderRadius: 100,
   },
   text: {

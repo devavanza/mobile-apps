@@ -6,7 +6,7 @@ import res from './langResources'
 const TextCompo = ({lang, error, textValue,isRTL, setState,_this}) => {
   return (
     <>
-      <View style={{flex: 1, padding: 10}}>
+      <View style={styles.tCompo14}>
         <TextInput
           multiline={true}
           numberOfLines={10}
@@ -23,12 +23,12 @@ const TextCompo = ({lang, error, textValue,isRTL, setState,_this}) => {
             _this.setState({textValue})
           }}
         />
-        <Text style={{color: 'grey', fontStyle: 'italic'}}>
+        <Text style={styles.tCompo15}>
           {500 - String(textValue).length}{' '}
           {res.resolve('CRemain', lang)}
         </Text>
         {error && (
-          <Text style={{color: 'red', fontStyle: 'italic'}}>
+          <Text style={styles.tCompo16}>
             {error}
           </Text>
         )}

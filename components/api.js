@@ -4,7 +4,6 @@ import { ToastAndroid } from "react-native";
 
 function setTextError(error){
     if(error){
-        // ToastAndroid.show(error)
         ToastAndroid.showWithGravity(
             error,
             ToastAndroid.SHORT,
@@ -27,7 +26,6 @@ const handleSubmitAudio = async function() {
       var bodyFormData = new FormData()
       bodyFormData.append('name', filename)
       console.log(this.state.audioPath, filename)
-      // bodyFormData.append('file', audioFile)
       bodyFormData.append('file', {
         name: filename,
         uri: 'file://' + this.state.audioPath,
@@ -209,7 +207,6 @@ const handleSubmitVideo = async function () {
     this.setSubmitLoading(true)
     try {
       let bodyFormData = new FormData()
-      // bodyFormData.append('file', captured);
       let filename = this.state.captured.replace(/^.*[\\\/]/, '')
       bodyFormData.append('file', {
         name: filename,
@@ -265,8 +262,6 @@ const handleSubmitVideo = async function () {
                 ...(await this.handleAccessToken()),
               },
             })
-
-            // console.log('upload response', response1)
           })
 
           console.log(
@@ -301,4 +296,100 @@ const handleSubmitVideo = async function () {
     }
   }
 }
-export default {handleSubmitAudio, handleSubmit, handleSubmitVideo, }
+
+const handleSatisfaction = async function (value, userEmotion) {
+  console.log('Satisfaction called', value, userEmotion)
+  if (value != 'No') {
+    this.setSubmitLoading(true)
+  }
+  let type
+  switch (this.props.type) {
+    case 'text':
+      type = 'T'
+      break
+    case 'video':
+      type = 'V'
+      break
+    case 'audio':
+      type = 'A'
+      break
+  }
+  if (value == 'No') {
+    this.setOther(true, userEmotion)
+  }
+  if (value == 'Yes') {
+    try {
+      let intId = this.state.interactionId
+      let response = await axios({
+        method: 'post',
+        url: `${this.state.baseURL}/PUBLIC/Feedback/submitInteraction`,
+        data: {
+          //   ...info,
+          type,
+          interactionId: intId,
+          customerProvidedSentiment: userEmotion,
+          emotion: this.state.emotion ? this.state.emotion : null,
+          confidence: this.state.confidence ? this.state.confidence : null,
+          age: this.state.age ? this.state.age : null,
+          gender: this.state.gender ? this.state.gender : null,
+          // indexId:indexResposne.indexId,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(await this.handleAccessToken()),
+        },
+      })
+      console.log('Submit response---------------TEXT----->', response)
+      if (response.status == 200) {
+        this.setSubmitLoading(false)
+        this.setCompleted(true)
+        Alert.alert(
+          res.resolve('alert', this.props.lang),
+          res.resolve('feedSubmitted', this.props.lang),
+        )
+        this.props.endFlow()
+      }
+    } catch (err) {
+      Alert.alert(
+        res.resolve('alert', this.props.lang),
+        res.resolve('feedSubmittedErr', this.props.lang),
+      )
+      this.setSubmitLoading(false)
+    }
+  }
+}
+
+const handleFaceCapture = async function(uri){
+  try {
+    let filename = uri.replace(/^.*[\\\/]/, '')
+    let bodyFormData = new FormData()
+    bodyFormData.append('file', {
+      name: filename,
+      uri: uri,
+      type: 'image/png',
+    })
+
+    console.log(
+      'reqsent!',
+      `${this.props.baseURL}/PUBLIC/Feedback/faceAttributes`,
+    )
+    let response = await axios({
+      method: 'post',
+      url: `${this.props.baseURL}/PUBLIC/Feedback/faceAttributes`,
+      data: bodyFormData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        ...(await this.handleAccessToken()),
+      },
+    })
+    console.log('response!', response)
+    if (response.status == 200) {
+      this.setState({captured: uri})
+      this.aggregateFaceResponses([response.data.faceResponse.faceAttributes])
+    }
+  } catch (err) {
+    console.log('response!', err)
+    console.log('Error in uploading face photo', err.stack)
+  }
+}
+export default {handleSubmitAudio, handleSubmit, handleSubmitVideo, handleSatisfaction , handleFaceCapture}
