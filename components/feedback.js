@@ -63,25 +63,26 @@ export default class Feedback extends PureComponent {
     this.handleSubmitAudio = api.handleSubmitAudio.bind(this)
     this.handleSubmit = api.handleSubmit.bind(this)
     this.handleSubmitVideo = api.handleSubmitVideo.bind(this)
+    this.requestLocationPermission();
     // this.setTextError=this.setTextError.bind(this)
     // this.aggregateFaceResponses = api.aggregateFaceResponses.bind(this)
     // this.handleFaceCapture = api.handleFaceCapture.bind(this)
   }
-  componentDidMount () {
-    // this.requestLocationPermission()
+  async componentDidMount () {
+    // await this.requestLocationPermission()
   }
   componentWillUnmount () {
     clearInterval(interval)
   }
   async grantPermission (perm, msg) {
-    const granted = await PermissionsAndroid.request(perm, {
+    let granted = await PermissionsAndroid.request(perm, {
       title: 'Feedback form',
       message: `Feedback form wants to access ${msg} `,
     })
 
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log(`You can use the ${msg}`)
-      alert(`You can use the ${msg}`)
+      // alert(`You can use the ${msg}`)
     } else {
       console.log(`${msg} permission denied`)
       alert(`${msg} permission denied`)
@@ -89,20 +90,12 @@ export default class Feedback extends PureComponent {
   }
 
   async requestLocationPermission () {
+    
     try {
-      this.grantPermission(PermissionsAndroid.PERMISSIONS.INTERNET, 'camera')
-      this.grantPermission(PermissionsAndroid.PERMISSIONS.CAMERA, 'camera')
+      this.grantPermission(PermissionsAndroid.PERMISSIONS.CAMERA, 'CAMERA')
       this.grantPermission(
         PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-        'camera',
-      )
-      this.grantPermission(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        'camera',
-      )
-      this.grantPermission(
-        PermissionsAndroid.PERMISSIONS.READ_INTERNAL_STORAGE,
-        'camera',
+        'RECORD AUDIO',
       )
     } catch (err) {
       console.warn(err)
