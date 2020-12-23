@@ -1,13 +1,15 @@
-import React, {useState, PureComponent} from 'react'
+import React, {useState, PureComponent, Component} from 'react'
 import ViewShot from 'react-native-view-shot'
 import Spinner from 'react-native-loading-spinner-overlay'
 import res from './langResources'
-import styles from './feedbackStyle'
+import styles from './feedbackStyle.ts'
 import Audio from './renderAudio'
 import Player from './renderPlayer'
 import TextCompo from './renderText'
 import Video from './renderVideo'
 import api from './api'
+import FastImage from 'react-native-fast-image'
+
 import {
   SafeAreaView,
   ScrollView,
@@ -21,13 +23,23 @@ import {
   PermissionsAndroid,
 } from 'react-native'
 import {RNCamera} from 'react-native-camera'
-import PropTypes from 'prop-types'
 import Sound from 'react-native-sound'
 import {AudioRecorder, AudioUtils} from 'react-native-audio'
 var interval
 var camera = null
-export default class Feedback extends PureComponent {
-  constructor (props) {
+
+interface FeedbackProps {
+  type: string
+  gender: string
+  baseURL: string
+  lang: string
+  endFlow: Function
+  clientkey: string
+  clientSecret: string
+}
+
+export default class Feedback<FeedbackProps> extends Component<FeedbackProps> {
+  constructor (props: FeedbackProps) {
     super(props)
 
     this.state = {
@@ -364,7 +376,8 @@ export default class Feedback extends PureComponent {
                 <Text style={styles.happyStyle}>
                   {res.resolve('satisfied', this.props.lang)}
                 </Text>
-                <Image
+
+                <FastImage
                   style={styles.image}
                   source={
                     this.props.gender == 'female'
@@ -406,7 +419,7 @@ export default class Feedback extends PureComponent {
                 <Text style={styles.happyStyle}>
                   {res.resolve('unsatisfied', this.props.lang)}
                 </Text>
-                <Image
+                <FastImage
                   style={styles.image}
                   source={
                     this.props.gender == 'female'
@@ -456,7 +469,7 @@ export default class Feedback extends PureComponent {
                 <View style={styles.fCompo3}>
                   <TouchableOpacity
                     onPress={() => this.handleSatisfaction('Yes', 'neutral')}>
-                    <Image
+                    <FastImage
                       style={styles.compo1}
                       source={
                         this.props.gender == 'female'
@@ -473,7 +486,7 @@ export default class Feedback extends PureComponent {
                 <View style={styles.compo3}>
                   <TouchableOpacity
                     onPress={() => this.handleSatisfaction('Yes', 'negative')}>
-                    <Image
+                    <FastImage
                       style={styles.compo4}
                       source={
                         this.props.gender == 'female'
@@ -505,7 +518,7 @@ export default class Feedback extends PureComponent {
                 <View style={styles.compo1}>
                   <TouchableOpacity
                     onPress={() => this.handleSatisfaction('Yes', 'happy')}>
-                    <Image
+                    <FastImage
                       style={styles.compo4}
                       source={
                         this.props.gender == 'female'
@@ -522,7 +535,7 @@ export default class Feedback extends PureComponent {
                 <View style={styles.compo3}>
                   <TouchableOpacity
                     onPress={() => this.handleSatisfaction('Yes', 'negative')}>
-                    <Image
+                    <FastImage
                       style={styles.compo4}
                       source={
                         this.props.gender == 'female'
@@ -745,7 +758,7 @@ export default class Feedback extends PureComponent {
                     onPress={() => {
                       this.props.endFlow()
                     }}>
-                    <Image
+                    <FastImage
                       style={styles.compo12}
                       source={require('../resouces/close_blue.png')}
                     />
@@ -828,14 +841,4 @@ export default class Feedback extends PureComponent {
       </>
     )
   }
-}
-
-Feedback.propTypes = {
-  type: PropTypes.string,
-  gender: PropTypes.string,
-  baseURL: PropTypes.string,
-  lang: PropTypes.string,
-  endFlow: PropTypes.func,
-  clientkey: PropTypes.string,
-  clientSecret: PropTypes.string,
 }

@@ -103,12 +103,31 @@ module.exports = StyleSheet.create({
     padding: 5,
     fontSize: 15,
   },
-  tCompo2: {padding: 0, margin: 0, left: 0, right: 0},
-  tCompo3: {height: 20, color: '#0054ad', borderColor: '#333'},
+  tCompo2: {
+    padding: 0,
+    margin: 0,
+    left: 0,
+    right: 0,
+    flex: 0,
+    alignItems: 'center',
+  },
+  tcomp99:{
+    flexDirection: 'row',
+    marginHorizontal: 10,
+  },
+  tCompo3: {
+    height: 20,
+    color: '#0054ad',
+    borderColor: '#333',
+    // backgroundColor: 'transparent',
+  },
   clear: {
     // borderColor: 'rgb(94, 212, 228)',
     borderBottomColor: 'rgba(0, 0, 0, 0.2)',
     borderBottomWidth: 1,
+  },
+  tcomp98:{
+    color: 'red', fontStyle: 'italic'
   },
   tCompo4: {
     width: 200,
@@ -175,7 +194,7 @@ module.exports = StyleSheet.create({
   },
   fCompo1: {flex: 1, padding: 10},
   fCompo2: {flexDirection: 'row'},
-  fCompo3:{width: 150, height: 150, textAlign: 'center'},
+  fCompo3: {width: 150, height: 150, textAlign: 'center'},
   pCompo3: {
     color: 'grey',
     // fontStyle: 'italic',

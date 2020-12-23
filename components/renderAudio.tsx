@@ -12,7 +12,7 @@ import {
 } from 'react-native'
 import {Picker} from '@react-native-community/picker'
 import CheckBox from '@react-native-community/checkbox'
-
+import FastImage from 'react-native-fast-image'
 
 const Audio = ({
   lang,
@@ -66,7 +66,7 @@ const Audio = ({
             onPressOut={() => {
               _this._stop()
             }}>
-            <Image
+            <FastImage
               style={styles.tCompo5}
               source={require('../resouces/mic-audio.png')}
             />

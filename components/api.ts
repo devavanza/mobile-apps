@@ -1,6 +1,6 @@
 import res from './langResources'
 import axios from 'axios'
-import { ToastAndroid } from "react-native";
+import { ToastAndroid ,  Alert,} from "react-native";
 
 function setTextError(error){
     if(error){

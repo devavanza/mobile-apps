@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Dimensions } from 'react-native';
 import res from './langResources';
-import Feedback from './feedback.js';
+import Feedback from './feedback.tsx';
 
 export default class Wrapper extends Component {
   // initial state

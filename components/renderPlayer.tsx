@@ -4,6 +4,7 @@ import CheckBox from '@react-native-community/checkbox'
 
 import VideoPlayer from 'react-native-video-player'
 import styles from './feedbackStyle'
+
 const Player = ({lang, uri, error, isSelected, setState,_this}) => {
   return (
     <View style={styles.pCompo1}>
@@ -12,7 +13,7 @@ const Player = ({lang, uri, error, isSelected, setState,_this}) => {
         videoWidth={1600}
         videoHeight={900}
       />
-      <Text style={{color: 'red', fontStyle: 'italic'}}>
+      <Text style={styles.tcomp98}>
         {error}
       </Text>
       {lang == 'en-US' && (
@@ -36,10 +37,7 @@ const Player = ({lang, uri, error, isSelected, setState,_this}) => {
       )}
       {lang == 'ar-EG' && (
         <View
-          style={{
-            flexDirection: 'row',
-            marginHorizontal: 10,
-          }}>
+          style={styles.tcomp99}>
           <CheckBox
             value={isSelected}
             onValueChange={vaue => {
