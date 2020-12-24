@@ -2,8 +2,22 @@ import React from 'react'
 import {View, Text, TextInput} from 'react-native'
 import styles from './feedbackStyle'
 import res from './langResources'
-
-const TextCompo = ({lang, error, textValue,isRTL, setState,_this}) => {
+interface PropsText {
+  lang: string
+  error: string
+  textValue: string
+  isRTL: boolean
+  setState: object
+  _this: object
+}
+const TextCompo = ({
+  lang,
+  error,
+  textValue,
+  isRTL,
+  setState,
+  _this,
+}): PropsText => {
   return (
     <>
       <View style={styles.tCompo14}>
@@ -24,14 +38,9 @@ const TextCompo = ({lang, error, textValue,isRTL, setState,_this}) => {
           }}
         />
         <Text style={styles.tCompo15}>
-          {500 - String(textValue).length}{' '}
-          {res.resolve('CRemain', lang)}
+          {500 - String(textValue).length} {res.resolve('CRemain', lang)}
         </Text>
-        {error && (
-          <Text style={styles.tCompo16}>
-            {error}
-          </Text>
-        )}
+        {error && <Text style={styles.tCompo16}>{error}</Text>}
       </View>
     </>
   )

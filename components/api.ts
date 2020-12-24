@@ -1,18 +1,18 @@
 import res from './langResources'
 import axios from 'axios'
-import { ToastAndroid ,  Alert,} from "react-native";
+import { ToastAndroid, Alert, } from "react-native";
 
-function setTextError(error){
-    if(error){
-        ToastAndroid.showWithGravity(
-            error,
-            ToastAndroid.SHORT,
-            ToastAndroid.BOTTOM
-          );
-    }
+function setTextError(error) {
+  if (error) {
+    ToastAndroid.showWithGravity(
+      error,
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM
+    );
+  }
 
 }
-const handleSubmitAudio = async function() {
+const handleSubmitAudio = async function () {
   setTextError(null)
   if (this.state.currentTime <= 5) {
     setTextError(res.resolve('SecAud', this.props.lang))
@@ -253,15 +253,19 @@ const handleSubmitVideo = async function () {
             }),
           )
           setImmediate(async () => {
-            await axios({
-              method: 'post',
-              url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
-              data: bodyFormData1,
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                ...(await this.handleAccessToken()),
-              },
-            })
+            try {
+              await axios({
+                method: 'post',
+                url: `${this.state.baseURL}/PUBLIC/Feedback/uploadInteraction`,
+                data: bodyFormData1,
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                  ...(await this.handleAccessToken()),
+                },
+              })
+            } catch (ex) {
+              console.log('Async Video upload error ', ex)
+            }
           })
 
           console.log(
@@ -270,17 +274,17 @@ const handleSubmitVideo = async function () {
             this.state.allEmotions.includes('negative'),
           )
           if (this.state.allEmotions.includes('negative')) {
-            this.setState({emotion: 'negative'})
+            this.setState({ emotion: 'negative' })
             this.setInteractionId(response.data.interactionId, 'Sad')
           } else if (
             this.state.allEmotions.includes('positive') &&
             this.state.allEmotions.includes('neutral') &&
             !this.state.allEmotions.includes('negative')
           ) {
-            this.setState({emotion: 'positive'})
+            this.setState({ emotion: 'positive' })
             this.setInteractionId(response.data.interactionId)
           } else {
-            this.setState({emotion: 'positive'})
+            this.setState({ emotion: 'positive' })
             this.setInteractionId(response.data.interactionId)
           }
           this.setSubmitLoading(false)
@@ -359,7 +363,7 @@ const handleSatisfaction = async function (value, userEmotion) {
   }
 }
 
-const handleFaceCapture = async function(uri){
+const handleFaceCapture = async function (uri) {
   try {
     let filename = uri.replace(/^.*[\\\/]/, '')
     let bodyFormData = new FormData()
@@ -384,7 +388,7 @@ const handleFaceCapture = async function(uri){
     })
     console.log('response!', response)
     if (response.status == 200) {
-      this.setState({captured: uri})
+      this.setState({ captured: uri })
       this.aggregateFaceResponses([response.data.faceResponse.faceAttributes])
     }
   } catch (err) {
@@ -392,4 +396,4 @@ const handleFaceCapture = async function(uri){
     console.log('Error in uploading face photo', err.stack)
   }
 }
-export default {handleSubmitAudio, handleSubmit, handleSubmitVideo, handleSatisfaction , handleFaceCapture}
+export default { handleSubmitAudio, handleSubmit, handleSubmitVideo, handleSatisfaction, handleFaceCapture }

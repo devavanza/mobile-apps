@@ -4,19 +4,28 @@ import res from './langResources'
 import styles from './feedbackStyle'
 import {View, Text, Dimensions} from 'react-native'
 import {Picker} from '@react-native-community/picker'
-
+interface PropsVideo {
+  lang: string
+  type: string
+  selectedValue: string
+  cameraState: object
+  isPlaying: boolean
+  timer: int
+  setState: object
+  error: string
+  _this: object
+}
 const Video = ({
   lang,
   type,
   selectedValue,
-  // camera,
   cameraState,
   isPlaying,
   timer,
   setState,
   error,
   _this,
-}) => {
+}: PropsVideo) => {
   return (
     <>
       <Text style={styles.tCompo1}>{res.resolve('HNRV', lang)}</Text>
@@ -50,7 +59,7 @@ const Video = ({
         }}>
         <RNCamera
           ref={ref => {
-            // if (ref && ref.current) 
+            // if (ref && ref.current)
             // _this.setState({cammLocal: ref})
             global.camera = ref
           }}

@@ -25,22 +25,24 @@ import {
 import {RNCamera} from 'react-native-camera'
 import Sound from 'react-native-sound'
 import {AudioRecorder, AudioUtils} from 'react-native-audio'
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'
 
-var interval;
-global.camera=null;
+var interval
+global.camera = null
 interface Props {
   type: string
-  gender: string,
-  baseURL: string,
-  lang: string,
-  endFlow: Function,
-  clientkey: string,
-  clientSecret: string,
+  gender: string
+  baseURL: string
+  lang: string
+  endFlow: Function
+  clientkey: string
+  clientSecret: string
 }
 
-export default class Feedback extends React.PureComponent<Props> {
-  constructor (props:Props) {
+export default class Feedback extends React.Component<Props> {
+  props: Props
+  state: any
+  constructor (props: Props) {
     super(props)
     this.state = {
       path: '',
@@ -596,9 +598,7 @@ export default class Feedback extends React.PureComponent<Props> {
         1000,
       )
       const options = {quality: RNCamera.Constants.VideoQuality['4:3']}
-      const {uri, codec = 'mp4'} = await global.camera.recordAsync(
-        options,
-      )
+      const {uri, codec = 'mp4'} = await global.camera.recordAsync(options)
       console.log('URI>>>>>>', uri)
 
       this.setState({

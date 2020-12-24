@@ -13,7 +13,18 @@ import {
 import {Picker} from '@react-native-community/picker'
 import CheckBox from '@react-native-community/checkbox'
 import FastImage from 'react-native-fast-image'
-
+interface PropsAudio {
+  lang: string
+  type: string
+  selectedValue: string
+  isPlaying: boolean
+  isSelected: boolean
+  currentTime: int
+  stoppedRecording: boolean
+  error: string
+  setState: object
+  _this: object,
+}
 const Audio = ({
   lang,
   type,
@@ -25,7 +36,7 @@ const Audio = ({
   error,
   setState,
   _this,
-}) => {
+}:PropsAudio) => {
   return (
     <>
       <View style={styles.container}>
