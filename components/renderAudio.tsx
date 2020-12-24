@@ -13,6 +13,8 @@ import {
 import {Picker} from '@react-native-community/picker'
 import CheckBox from '@react-native-community/checkbox'
 import FastImage from 'react-native-fast-image'
+import {Dropdown} from 'react-native-material-dropdown'
+
 interface PropsAudio {
   lang: string
   type: string
@@ -23,7 +25,7 @@ interface PropsAudio {
   stoppedRecording: boolean
   error: string
   setState: object
-  _this: object,
+  _this: object
 }
 const Audio = ({
   lang,
@@ -36,7 +38,7 @@ const Audio = ({
   error,
   setState,
   _this,
-}:PropsAudio) => {
+}: PropsAudio) => {
   return (
     <>
       <View style={styles.container}>
@@ -66,6 +68,23 @@ const Audio = ({
                 />
                 <Picker.Item label={res.resolve('Urdu', lang)} value='hi-IN' />
               </Picker>
+
+              // <Dropdown
+              //   // ref={this.typographyRef}
+              //   // value={typography}
+              //   style={{}}
+              //   // onChangeText={this.onChangeText}
+              //   label='Typography'
+              //   data={[
+              //     { value: 'Display2', label: 'Display 2' },
+              //     { value: 'Display1', label: 'Display 1' },
+              //     { value: 'Headline' },
+              //     { value: 'Title' },
+              //     { value: 'Subheading' },
+              //     { value: 'Body' },
+              //     { value: 'Caption' },
+              //   ]}
+              // />
             )}
           </>
 

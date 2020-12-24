@@ -88,9 +88,11 @@ export default class Feedback extends React.Component<Props> {
 
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log(`You can use the ${msg}`)
+      return true
     } else {
       console.log(`${msg} permission denied`)
       alert(`${msg} permission denied`)
+      return false
     }
   }
 
@@ -561,57 +563,75 @@ export default class Feedback extends React.Component<Props> {
 
   async startRecording () {
     console.log('start')
-    if (this.state.showUploadVideo == true) {
-      this.setState({
-        type: 'video',
-        label: res.resolve('startRecord', this.props.lang),
-        showUploadVideo: false,
-      })
-    } else if (!this.state.recording) {
-      this.setState({
-        recording: true,
-        timer: 60,
-      })
-      console.log('i am here')
-      interval = setInterval(
-        (() => {
-          if (this.state.timer % 5 == 0) {
-            this.refs.viewShot.capture().then(uri => {
-              if (uri) {
-                console.log('captured ', uri)
-                this.handleFaceCapture(uri)
-              } else {
-                clearInterval(interval)
-              }
-            })
-          }
-          if (this.state.timer == 0) {
-            clearInterval(interval)
-            this.stopRecording()
-          } else {
-            console.log(this.state.timer - 1)
-            this.setState({
-              timer: this.state.timer - 1,
-              label: `${res.resolve('StopRecording', this.props.lang)}`,
-            })
-          }
-        }).bind(this),
-        1000,
+    if (
+      await this.grantPermission(PermissionsAndroid.PERMISSIONS.CAMERA, 'camera') &&
+      await this.grantPermission(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        'audio',
       )
-      const options = {quality: RNCamera.Constants.VideoQuality['4:3']}
-      const {uri, codec = 'mp4'} = await global.camera.recordAsync(options)
-      console.log('URI>>>>>>', uri)
+    ) {
+      if (this.state.showUploadVideo == true) {
+        this.setState({
+          type: 'video',
+          label: res.resolve('startRecord', this.props.lang),
+          showUploadVideo: false,
+        })
+      } else if (!this.state.recording) {
+        this.setState({
+          recording: true,
+          timer: 60,
+        })
+        console.log('i am here')
+        interval = setInterval(
+          (() => {
+            if (this.state.timer % 5 == 0) {
+              this.refs.viewShot.capture().then(uri => {
+                if (uri) {
+                  console.log('captured ', uri)
+                  this.handleFaceCapture(uri)
+                } else {
+                  clearInterval(interval)
+                }
+              })
+            }
+            if (this.state.timer == 0) {
+              clearInterval(interval)
+              this.stopRecording()
+            } else {
+              console.log(this.state.timer - 1)
+              this.setState({
+                timer: this.state.timer - 1,
+                label: `${res.resolve('StopRecording', this.props.lang)}`,
+              })
+            }
+          }).bind(this),
+          1000,
+        )
+        const options = {quality: RNCamera.Constants.VideoQuality['4:3']}
+        try {
+          const {uri, codec = 'mp4'} = await global.camera.recordAsync(options)
+          console.log('URI>>>>>>', uri)
 
-      this.setState({
-        uri,
-        type: 'player',
-        label: res.resolve('ReRecord', this.props.lang),
-        recording: false,
-        showUploadVideo: true,
-      })
-    } else {
-      clearInterval(interval)
-      this.stopRecording()
+          this.setState({
+            uri,
+            type: 'player',
+            label: res.resolve('ReRecord', this.props.lang),
+            recording: false,
+            showUploadVideo: true,
+          })
+        } catch (ex) {
+          console.log(ex)
+          global.camera.stopRecording()
+          this.setState({
+            uri,
+            label: res.resolve('startRecord', this.props.lang),
+            recording: false,
+          })
+        }
+      } else {
+        clearInterval(interval)
+        this.stopRecording()
+      }
     }
   }
 
@@ -744,9 +764,9 @@ export default class Feedback extends React.Component<Props> {
           // style={{marginTop: this.state.mtop}
           style={[
             styles.centerVertical,
-            !this.state.isRTL && { left: Dimensions.get('window').width * 0.04 },
-            this.state.isRTL && { right: Dimensions.get('window').width * 0.04 },
-            ]}>
+            !this.state.isRTL && {left: Dimensions.get('window').width * 0.04},
+            this.state.isRTL && {right: Dimensions.get('window').width * 0.04},
+          ]}>
           <ScrollView
             contentInsetAdjustmentBehavior='automatic'
             style={[
