@@ -1,8 +1,8 @@
-import {StyleSheet, Dimensions} from 'react-native'
-import {Colors} from 'react-native/Libraries/NewAppScreen'
+import { StyleSheet, Dimensions } from 'react-native'
+import { Colors } from 'react-native/Libraries/NewAppScreen'
 
 module.exports = StyleSheet.create({
-  main: {color: '#FFF'},
+  main: { color: '#FFF' },
   linebreak: {
     width: 10,
     height: 20,
@@ -22,12 +22,12 @@ module.exports = StyleSheet.create({
     alignItems: 'center',
     height: 210,
   },
-  compo1: {width: 150, height: 150, textAlign: 'center'},
+  compo1: { width: 150, height: 150, textAlign: 'center' },
   compo2: {
     textAlign: 'center',
     marginLeft: Dimensions.get('window').width * 0.03,
   },
-  compo3: {width: 150, height: 150},
+  compo3: { width: 150, height: 150 },
   compo4: {
     width: '100%',
     height: '100%',
@@ -43,7 +43,7 @@ module.exports = StyleSheet.create({
     width: 10,
     height: 50,
   },
-  compo7: {color: '#FFF'},
+  compo7: { color: '#FFF' },
   yesNoStyle: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -53,7 +53,7 @@ module.exports = StyleSheet.create({
     marginTop: -50,
     alignItems: 'center',
   },
-  centerVertical:{
+  centerVertical: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -64,7 +64,7 @@ module.exports = StyleSheet.create({
     backgroundColor: '#FFF',
     elevation: 5,
     padding: 10,
-    textAlign: 'center' ,
+    textAlign: 'center',
     borderColor: 'rgba(0, 0, 0, 0.12)',
     borderWidth: 2,
     padding: 0,
@@ -119,7 +119,7 @@ module.exports = StyleSheet.create({
     flex: 0,
     alignItems: 'center',
   },
-  tcomp99:{
+  tcomp99: {
     flexDirection: 'row',
     marginHorizontal: 10,
   },
@@ -134,7 +134,7 @@ module.exports = StyleSheet.create({
     borderBottomColor: 'rgba(0, 0, 0, 0.2)',
     borderBottomWidth: 1,
   },
-  tcomp98:{
+  tcomp98: {
     color: 'red', fontStyle: 'italic'
   },
   tCompo4: {
@@ -158,7 +158,7 @@ module.exports = StyleSheet.create({
     alignItems: 'center',
     marginLeft: 10,
   },
-  tCompo8: {color: 'red', fontStyle: 'italic', padding: 22},
+  tCompo8: { color: 'red', fontStyle: 'italic', padding: 22 },
   tCompo9: {
     flexDirection: 'row',
     left: 10,
@@ -169,15 +169,15 @@ module.exports = StyleSheet.create({
     fontSize: 12,
     width: Dimensions.get('window').width * 0.75,
   },
-  tCompo11: {top: 3},
+  tCompo11: { top: 3 },
   tCompo13: {
     color: 'grey',
     fontSize: 13,
     width: Dimensions.get('window').width * 0.7,
   },
-  tCompo14: {flex: 1, padding: 10},
-  tCompo15: {color: 'grey', fontStyle: 'italic'},
-  tCompo16: {color: 'red', fontStyle: 'italic'},
+  tCompo14: { flex: 1, padding: 10 },
+  tCompo15: { color: 'grey', fontStyle: 'italic' },
+  tCompo16: { color: 'red', fontStyle: 'italic' },
   tCompo17: {
     color: 'grey',
     justifyContent: 'center',
@@ -200,9 +200,9 @@ module.exports = StyleSheet.create({
     width: Dimensions.get('window').width * 0.7,
     // padding: 22,
   },
-  fCompo1: {flex: 1, padding: 10},
-  fCompo2: {flexDirection: 'row'},
-  fCompo3: {width: 150, height: 150, textAlign: 'center'},
+  fCompo1: { flex: 1, padding: 10 },
+  fCompo2: { flexDirection: 'row' },
+  fCompo3: { width: 150, height: 150, textAlign: 'center' },
   pCompo3: {
     color: 'grey',
     // fontStyle: 'italic',
@@ -214,7 +214,7 @@ module.exports = StyleSheet.create({
     flex: 1,
     flexDirection: 'row-reverse',
   },
-  pCompo1: {flex: 1, padding: 10},
+  pCompo1: { flex: 1, padding: 10 },
   main1: {
     backgroundColor: '#FFF',
     elevation: 5,
@@ -299,7 +299,7 @@ module.exports = StyleSheet.create({
     width: 300,
     height: 285,
     marginTop: -50,
-    transform: [{scale: 0.5}],
+    transform: [{ scale: 0.5 }],
   },
   footer: {
     color: Colors.dark,
@@ -338,4 +338,72 @@ module.exports = StyleSheet.create({
     fontSize: 20,
     color: '#B81F00',
   },
+
+
+
+  ///
+
+  accessory: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  triangle: {
+    width: 8,
+    height: 8,
+    transform: [{
+      translateY: -4,
+    }, {
+      rotate: '45deg',
+    }],
+  },
+
+  triangleContainer: {
+    width: 12,
+    height: 6,
+    overflow: 'hidden',
+    alignItems: 'center',
+
+    backgroundColor: 'transparent', /* XXX: Required */
+  },
+
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+
+  picker: {
+    backgroundColor: 'rgba(255, 255, 255, 1.0)',
+    borderRadius: 2,
+
+    position: 'absolute',
+
+    ...Platform.select({
+      ios: {
+        shadowRadius: 2,
+        shadowColor: 'rgba(0, 0, 0, 1.0)',
+        shadowOpacity: 0.54,
+        shadowOffset: { width: 0, height: 2 },
+      },
+
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+
+  item: {
+    textAlign: 'left',
+  },
+
+  scroll: {
+    flex: 1,
+    borderRadius: 2,
+  },
+
+  scrollContainer: {
+    paddingVertical: 8,
+  },
+
 })

@@ -22,6 +22,7 @@ import {
   TouchableOpacity,
   PermissionsAndroid,
   Dimensions,
+  Alert
 } from 'react-native'
 import {RNCamera} from 'react-native-camera'
 import Sound from 'react-native-sound'
@@ -91,7 +92,8 @@ export default class Feedback extends React.Component<Props> {
       return true
     } else {
       console.log(`${msg} permission denied`)
-      alert(`${msg} permission denied`)
+      Alert.alert(`${msg} permission denied`)
+      this.props.endFlow()
       return false
     }
   }
@@ -563,13 +565,23 @@ export default class Feedback extends React.Component<Props> {
 
   async startRecording () {
     console.log('start')
+    const result = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+    )
     if (
-      await this.grantPermission(PermissionsAndroid.PERMISSIONS.CAMERA, 'camera') &&
-      await this.grantPermission(
+      (await this.grantPermission(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        'camera',
+      )) &&
+      (await this.grantPermission(
         PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
         'audio',
-      )
+      ))
     ) {
+      if (!result) {
+        this.props.endFlow();
+        return
+      }
       if (this.state.showUploadVideo == true) {
         this.setState({
           type: 'video',
