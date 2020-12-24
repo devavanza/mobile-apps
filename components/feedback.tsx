@@ -21,6 +21,7 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   PermissionsAndroid,
+  Dimensions,
 } from 'react-native'
 import {RNCamera} from 'react-native-camera'
 import Sound from 'react-native-sound'
@@ -135,11 +136,11 @@ export default class Feedback extends React.Component<Props> {
       clientSecret: this.props.clientSecret,
     })
     if (this.props.type == 'video') {
-      this.setState({mtop: 80})
+      this.setState({mtop: Dimensions.get('window').height * 0.11})
     } else if (this.props.type == 'audio') {
-      this.setState({mtop: 80})
+      this.setState({mtop: Dimensions.get('window').height * 0.11})
     } else {
-      this.setState({mtop: 160})
+      this.setState({mtop: Dimensions.get('window').height * 0.25})
     }
 
     if (this.props.type == 'video') {
@@ -739,7 +740,15 @@ export default class Feedback extends React.Component<Props> {
           overlayColor='#00336777'
         />
         <StatusBar barStyle='dark-content' />
-        <SafeAreaView style={{marginTop: this.state.mtop}}>
+        <SafeAreaView
+          // style={{marginTop: this.state.mtop}
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            left: Dimensions.get('window').width * 0.04
+          }}>
           <ScrollView
             contentInsetAdjustmentBehavior='automatic'
             style={[
@@ -751,7 +760,7 @@ export default class Feedback extends React.Component<Props> {
                 <View style={styles.compo10}>
                   <TouchableOpacity
                     style={{
-                      left: this.state.isRTL ? 'auto' : 0,
+                      left: this.state.isRTL ? 'auto' : -5,
                       right: this.state.isRTL ? 10 : 'auto',
                       ...styles.compo11,
                     }}
