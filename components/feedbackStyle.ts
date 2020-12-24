@@ -58,7 +58,7 @@ module.exports = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    left: Dimensions.get('window').width * 0.04
+    // left: Dimensions.get('window').width * 0.04
   },
   compo8: {
     backgroundColor: '#FFF',

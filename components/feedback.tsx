@@ -742,7 +742,11 @@ export default class Feedback extends React.Component<Props> {
         <StatusBar barStyle='dark-content' />
         <SafeAreaView
           // style={{marginTop: this.state.mtop}
-          style={styles.centerVertical}>
+          style={[
+            styles.centerVertical,
+            !this.state.isRTL && { left: Dimensions.get('window').width * 0.04 },
+            this.state.isRTL && { right: Dimensions.get('window').width * 0.04 },
+            ]}>
           <ScrollView
             contentInsetAdjustmentBehavior='automatic'
             style={[
