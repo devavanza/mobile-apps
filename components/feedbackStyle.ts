@@ -53,10 +53,18 @@ module.exports = StyleSheet.create({
     marginTop: -50,
     alignItems: 'center',
   },
+  centerVertical:{
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    left: Dimensions.get('window').width * 0.04
+  },
   compo8: {
     backgroundColor: '#FFF',
     elevation: 5,
     padding: 10,
+    textAlign: 'center' ,
     borderColor: 'rgba(0, 0, 0, 0.12)',
     borderWidth: 2,
     padding: 0,
