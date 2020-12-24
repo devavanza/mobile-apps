@@ -29,10 +29,19 @@ import PropTypes from 'prop-types';
 
 var interval;
 global.camera=null;
-export default class Feedback extends Component {
-  constructor (props) {
-    super(props)
+interface Props {
+  type: string
+  gender: string,
+  baseURL: string,
+  lang: string,
+  endFlow: Function,
+  clientkey: string,
+  clientSecret: string,
+}
 
+export default class Feedback extends React.PureComponent<Props> {
+  constructor (props:Props) {
+    super(props)
     this.state = {
       path: '',
       label: res.resolve('submit', this.props.lang),
@@ -832,13 +841,4 @@ export default class Feedback extends Component {
       </>
     )
   }
-}
-Feedback.propTypes = {
-  type: PropTypes.string,
-  gender: PropTypes.string,
-  baseURL: PropTypes.string,
-  lang: PropTypes.string,
-  endFlow: PropTypes.func,
-  clientkey: PropTypes.string,
-  clientSecret: PropTypes.string,
 }
