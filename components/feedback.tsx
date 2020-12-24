@@ -25,21 +25,12 @@ import {
 import {RNCamera} from 'react-native-camera'
 import Sound from 'react-native-sound'
 import {AudioRecorder, AudioUtils} from 'react-native-audio'
-var interval
-var camera = null
+import PropTypes from 'prop-types';
 
-interface FeedbackProps {
-  type: string
-  gender: string
-  baseURL: string
-  lang: string
-  endFlow: Function
-  clientkey: string
-  clientSecret: string
-}
-
-export default class Feedback<FeedbackProps> extends Component<FeedbackProps> {
-  constructor (props: FeedbackProps) {
+var interval;
+global.camera=null;
+export default class Feedback extends Component {
+  constructor (props) {
     super(props)
 
     this.state = {
@@ -596,7 +587,7 @@ export default class Feedback<FeedbackProps> extends Component<FeedbackProps> {
         1000,
       )
       const options = {quality: RNCamera.Constants.VideoQuality['4:3']}
-      const {uri, codec = 'mp4'} = await this.state.cammLocal.recordAsync(
+      const {uri, codec = 'mp4'} = await global.camera.recordAsync(
         options,
       )
       console.log('URI>>>>>>', uri)
@@ -616,7 +607,7 @@ export default class Feedback<FeedbackProps> extends Component<FeedbackProps> {
 
   async stopRecording () {
     this.setState({recording: false, stopped: true})
-    this.state.cammLocal.stopRecording()
+    global.camera.stopRecording()
   }
   switchText () {
     console.log('stopped')
@@ -841,4 +832,13 @@ export default class Feedback<FeedbackProps> extends Component<FeedbackProps> {
       </>
     )
   }
+}
+Feedback.propTypes = {
+  type: PropTypes.string,
+  gender: PropTypes.string,
+  baseURL: PropTypes.string,
+  lang: PropTypes.string,
+  endFlow: PropTypes.func,
+  clientkey: PropTypes.string,
+  clientSecret: PropTypes.string,
 }

@@ -9,7 +9,7 @@ const Video = ({
   lang,
   type,
   selectedValue,
-  camera,
+  // camera,
   cameraState,
   isPlaying,
   timer,
@@ -19,10 +19,7 @@ const Video = ({
 }) => {
   return (
     <>
-      <Text
-        style={styles.tCompo1}>
-        {res.resolve('HNRV', lang)}
-      </Text>
+      <Text style={styles.tCompo1}>{res.resolve('HNRV', lang)}</Text>
       <>
         {type != 'text' && (
           <Picker
@@ -53,8 +50,9 @@ const Video = ({
         }}>
         <RNCamera
           ref={ref => {
-            _this.setState({cammLocal: ref})
-            // camera = ref
+            // if (ref && ref.current) 
+            // _this.setState({cammLocal: ref})
+            global.camera = ref
           }}
           defaultTouchToFocus
           flashMode={cameraState.flashMode}
