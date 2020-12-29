@@ -36,6 +36,7 @@ let resourcesEn = {
   PWT: 'Please wait...',
   English: 'English',
   Urdu: 'Urdu',
+  Lang: 'Langauge',
 };
 
 let resourcesAr = {
@@ -74,6 +75,7 @@ let resourcesAr = {
   English: 'الإنجليزية',
   Urdu: 'أردو',
   HNRV: 'إضغط على الزر أدناه لتسجيل ملاحظاتك باللغة',
+  Lang:'لغة'
 };
 
 function resolve(labelId, lang = 'en-US') {

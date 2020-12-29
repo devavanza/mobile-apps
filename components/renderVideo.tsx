@@ -2,8 +2,9 @@ import React, {useState, PureComponent, useRef} from 'react'
 import {RNCamera} from 'react-native-camera'
 import res from './langResources'
 import styles from './feedbackStyle'
-import {View, Text, Dimensions} from 'react-native'
-import {Picker} from '@react-native-community/picker'
+import {View, Text} from 'react-native'
+import Dropdown from './dropdown'
+
 interface PropsVideo {
   lang: string
   type: string
@@ -29,29 +30,48 @@ const Video = ({
   return (
     <>
       <Text style={styles.tCompo1}>{res.resolve('HNRV', lang)}</Text>
-      <>
+      <View style={{...styles.controls}}>
         {type != 'text' && (
-          <Picker
-            selectedValue={selectedValue}
-            itemStyle={styles.tCompo2}
-            style={{
-              ...styles.tCompo3,
-              width: lang == 'ar-EG' ? Dimensions.get('window').width : 120,
-              left:
-                lang == 'ar-EG'
-                  ? Dimensions.get('window').width / 2 - 60
-                  : Dimensions.get('window').width / 2 - 60,
-            }}
-            onValueChange={(itemValue, itemIndex) => {
+
+          <Dropdown
+            icon='chevron-down'
+            iconColor='#fff'
+            itemTextStyle={{textAlign: 'center'}}
+            label={res.resolve('Lang', lang)}
+            useNativeDriver={true}
+            value={selectedValue}
+            onChangeText={(itemValue, itemIndex) => {
               console.log(itemValue)
               _this.setState({selectedValue: itemValue})
-            }}>
-            <Picker.Item label={res.resolve('AR', lang)} value='ar-EG' />
-            <Picker.Item label={res.resolve('English', lang)} value='en-US' />
-            <Picker.Item label={res.resolve('Urdu', lang)} value='hi-IN' />
-          </Picker>
+            }}
+            overlayStyle={{backgroundColor: 'rgba(0, 0, 0, 0.87)'}}
+            dropdownPosition={-4.5}
+            dropdownOffset={{
+              top: 32,
+              left: lang == 'ar-EG' ? undefined : 0,
+            }}
+            style={{
+              ...styles.tCompo3,
+              height: 50,
+              width: 150,
+            }}
+            data={[
+              {
+                label: res.resolve('English', lang),
+                value: 'en-US',
+              },
+              {
+                label: res.resolve('AR', lang),
+                value: 'ar-EG',
+              },
+              {
+                label: res.resolve('Urdu', lang),
+                value: 'hi-IN',
+              },
+            ]}
+          />
         )}
-      </>
+      </View>
 
       <View
         styles={{

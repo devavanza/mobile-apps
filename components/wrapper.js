@@ -1,7 +1,15 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Dimensions } from 'react-native';
-import res from './langResources';
-import Feedback from './feedback.tsx';
+import React, {Component} from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Modal,
+  Dimensions,
+} from 'react-native'
+import res from './langResources'
+import Feedback from './feedback'
 
 export default class Wrapper extends Component {
   // initial state
@@ -11,22 +19,22 @@ export default class Wrapper extends Component {
     isVideo: false,
     isText: false,
     transparent: true,
-  };
+  }
 
   // hide show modal
-  displayModal(show) {
-    this.setState({ isVisible: show });
+  displayModal (show) {
+    this.setState({isVisible: show})
   }
-  onClickVideo() {
-    this.setState({ isVideo: true });
+  onClickVideo () {
+    this.setState({isVideo: true})
   }
-  onClickAudio() {
-    this.setState({ isAudio: true });
+  onClickAudio () {
+    this.setState({isAudio: true})
   }
-  onClickText() {
-    this.setState({ isText: true });
+  onClickText () {
+    this.setState({isText: true})
   }
-  endFlow() {
+  endFlow () {
     // alert("Your Feedback Submitted Successfully!!");
     this.setState({
       isVisible: false,
@@ -35,17 +43,22 @@ export default class Wrapper extends Component {
       isVideo: false,
       isText: false,
       visibily: false,
-    });
+    })
   }
-  renderMain() {
+  renderMain () {
     return (
       <>
-        <Image source={require('../resouces/drawer.png')} style={styles.image} />
-        <Text style={styles.imageTextExp}>{res.resolve('exp', this.props.lang)}</Text>
+        <Image
+          source={require('../resouces/drawer.png')}
+          style={styles.image}
+        />
+        <Text style={styles.imageTextExp}>
+          {res.resolve('exp', this.props.lang)}
+        </Text>
         <View style={styles.imageText}>
           <TouchableOpacity
             onPress={() => {
-              this.setState({ isText: true, transparent: false });
+              this.setState({isText: true, transparent: false})
             }}>
             <Image
               style={{
@@ -62,7 +75,7 @@ export default class Wrapper extends Component {
         <View style={styles.imageVideo}>
           <TouchableOpacity
             onPress={() => {
-              this.setState({ isVideo: true, transparent: false });
+              this.setState({isVideo: true, transparent: false})
             }}>
             <Image
               style={{
@@ -78,7 +91,7 @@ export default class Wrapper extends Component {
         <View style={styles.imageAudio}>
           <TouchableOpacity
             onPress={() => {
-              this.setState({ isAudio: true, transparent: false });
+              this.setState({isAudio: true, transparent: false})
             }}>
             <Image
               style={{
@@ -92,10 +105,10 @@ export default class Wrapper extends Component {
           </TouchableOpacity>
         </View>
       </>
-    );
+    )
   }
 
-  render() {
+  render () {
     return (
       <View style={styles.container}>
         <Image
@@ -115,9 +128,12 @@ export default class Wrapper extends Component {
           transparent={true}
           visible={this.state.isVisible}
           onRequestClose={() => {
-            Alert.alert('Modal has now been closed.');
+            Alert.alert('Modal has now been closed.')
           }}>
-          {!this.state.isAudio && !this.state.isVideo && !this.state.isText && this.renderMain()}
+          {!this.state.isAudio &&
+            !this.state.isVideo &&
+            !this.state.isText &&
+            this.renderMain()}
 
           {this.state.isVideo && (
             <View
@@ -128,13 +144,13 @@ export default class Wrapper extends Component {
                 backgroundColor: 'rgba(0,0,0,0.5)',
               }}>
               <Feedback
-                type="video"
-                gender={this.props.gender}
-                baseURL={this.props.api}
-                lang={this.props.lang}
-                endFlow={this.endFlow.bind(this)}
-                clientkey={this.props.clientkey}
-                clientSecret={this.props.clientSecret}
+                type='video' // possible values:  audio, video, text
+                gender={this.props.gender} // gender of loged in user, possible values: male (default) , female
+                baseURL={this.props.api} // server url for posting feedback
+                lang={this.props.lang} // selected langauge possible values: en-US, ar-EG
+                endFlow={this.endFlow.bind(this)} // callback/handle when the flow is complete
+                clientkey={this.props.clientkey} // posting server client key for access
+                clientSecret={this.props.clientSecret} // posting server client secret / password for access
               />
             </View>
           )}
@@ -148,7 +164,7 @@ export default class Wrapper extends Component {
                 backgroundColor: 'rgba(0,0,0,0.5)',
               }}>
               <Feedback
-                type="audio"
+                type='audio'
                 gender={this.props.gender}
                 baseURL={this.props.api}
                 lang={this.props.lang}
@@ -167,7 +183,7 @@ export default class Wrapper extends Component {
                 backgroundColor: 'rgba(0, 0, 0, 0.87)',
               }}>
               <Feedback
-                type="text"
+                type='text'
                 gender={this.props.gender}
                 baseURL={this.props.api}
                 lang={this.props.lang}
@@ -194,14 +210,14 @@ export default class Wrapper extends Component {
               position: 'absolute',
             }}
             onPress={() => {
-              this.setState({ visibily: true });
-              this.displayModal(true);
+              this.setState({visibily: true})
+              this.displayModal(true)
             }}>
             <Image source={require('../resouces/feedback.png')} />
           </TouchableOpacity>
         )}
       </View>
-    );
+    )
   }
 }
 
@@ -357,4 +373,4 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     padding: 40,
   },
-});
+})

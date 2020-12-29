@@ -22,7 +22,7 @@ import {
   TouchableOpacity,
   PermissionsAndroid,
   Dimensions,
-  Alert
+  Alert,s
 } from 'react-native'
 import {RNCamera} from 'react-native-camera'
 import Sound from 'react-native-sound'
@@ -76,8 +76,25 @@ export default class Feedback extends React.Component<Props> {
     this.requestLocationPermission()
     this.handleSatisfaction = api.handleSatisfaction.bind(this)
     this.handleFaceCapture = api.handleFaceCapture.bind(this)
+
   }
-  async componentDidMount () {}
+  // async componentDidMount () {
+  //   console.log("chaecking!!!!!")
+  //   if (this.props.type == 'video') {
+  //     const result = await PermissionsAndroid.check(
+  //       PermissionsAndroid.PERMISSIONS.CAMERA,
+  //     )
+  //     const result2 = await PermissionsAndroid.check(
+  //       PermissionsAndroid.PERMISSIONS.AUDIO,
+  //     )
+  //     if (!result || result2) {
+  //       this.setState({
+  //         type: 'norender',
+  //       })
+  //       Alert.alert('Please Allow Audio and Video Permission')
+  //     }
+  //   }
+  // }
   componentWillUnmount () {
     clearInterval(interval)
   }
@@ -129,7 +146,9 @@ export default class Feedback extends React.Component<Props> {
   setTextError (error) {
     this.setState({error: error})
   }
+ 
   componentDidMount () {
+    
     this.setState({
       isRTL: this.props.lang == 'ar-EG',
       completed: false,
@@ -256,7 +275,6 @@ export default class Feedback extends React.Component<Props> {
           console.log('failed to load the sound', error)
         }
       })
-
       setTimeout(
         (() => {
           this.setState({isPlaying: true})
@@ -568,20 +586,21 @@ export default class Feedback extends React.Component<Props> {
     const result = await PermissionsAndroid.check(
       PermissionsAndroid.PERMISSIONS.CAMERA,
     )
-    if (
-      (await this.grantPermission(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        'camera',
-      )) &&
-      (await this.grantPermission(
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-        'audio',
-      ))
-    ) {
-      if (!result) {
-        this.props.endFlow();
-        return
-      }
+    if (!result) {
+      this.setState(
+        {
+          type: 'norender',
+        },
+        () => {
+          this.setState({
+            type: 'video',
+          })
+        },
+      )
+      // this.props.endFlow()
+      return;
+    }
+    if (result) {
       if (this.state.showUploadVideo == true) {
         this.setState({
           type: 'video',

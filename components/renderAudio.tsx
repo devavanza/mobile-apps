@@ -4,16 +4,13 @@ import styles from './feedbackStyle'
 import {
   View,
   Text,
-  Image,
   Button,
-  Dimensions,
   TouchableOpacity,
   // Picker,
 } from 'react-native'
-import {Picker} from '@react-native-community/picker'
 import CheckBox from '@react-native-community/checkbox'
 import FastImage from 'react-native-fast-image'
-import {Dropdown} from 'react-native-material-dropdown'
+import Dropdown from './dropdown'
 
 interface PropsAudio {
   lang: string
@@ -39,54 +36,58 @@ const Audio = ({
   setState,
   _this,
 }: PropsAudio) => {
+  // alert(lang)
   return (
     <>
       <View style={styles.container}>
         <View style={{...styles.controls}}>
           <Text style={styles.tCompo1}>{res.resolve('HNR', lang)}</Text>
-          <>
+          <View
+            style={{
+              marginHorizontal: 4,
+              marginVertical: 8,
+              paddingHorizontal: 8,
+            }}>
             {type != 'text' && (
-              <Picker
-                itemStyle={styles.tCompo2}
-                selectedValue={selectedValue}
-                style={{
-                  ...styles.tCompo3,
-                  width: lang == 'ar-EG' ? Dimensions.get('window').width : 120,
-                  left:
-                    lang == 'ar-EG'
-                      ? Dimensions.get('window').width / 2 - 60
-                      : 0,
-                }}
-                onValueChange={(itemValue, itemIndex) => {
+              <Dropdown
+                icon='chevron-down'
+                iconColor='#fff'
+                itemTextStyle={{textAlign: 'center'}}
+                label={res.resolve('Lang', lang)}
+                useNativeDriver={true}
+                value={selectedValue}
+                onChangeText={(itemValue, itemIndex) => {
                   console.log(itemValue)
                   _this.setState({selectedValue: itemValue})
-                }}>
-                <Picker.Item label={res.resolve('AR', lang)} value='ar-EG' />
-                <Picker.Item
-                  label={res.resolve('English', lang)}
-                  value='en-US'
-                />
-                <Picker.Item label={res.resolve('Urdu', lang)} value='hi-IN' />
-              </Picker>
-
-              // <Dropdown
-              //   // ref={this.typographyRef}
-              //   // value={typography}
-              //   style={{}}
-              //   // onChangeText={this.onChangeText}
-              //   label='Typography'
-              //   data={[
-              //     { value: 'Display2', label: 'Display 2' },
-              //     { value: 'Display1', label: 'Display 1' },
-              //     { value: 'Headline' },
-              //     { value: 'Title' },
-              //     { value: 'Subheading' },
-              //     { value: 'Body' },
-              //     { value: 'Caption' },
-              //   ]}
-              // />
+                }}
+                overlayStyle={{backgroundColor: 'rgba(0, 0, 0, 0.87)'}}
+                dropdownPosition={-4.5}
+                dropdownOffset={{
+                  top: 32,
+                  left: lang == 'ar-EG' ? undefined : 0,
+                }}
+                style={{
+                  ...styles.tCompo3,
+                  height: 50,
+                  width: 150,
+                }}
+                data={[
+                  {
+                    label: res.resolve('English', lang),
+                    value: 'en-US',
+                  },
+                  {
+                    label: res.resolve('AR', lang),
+                    value: 'ar-EG',
+                  },
+                  {
+                    label: res.resolve('Urdu', lang),
+                    value: 'hi-IN',
+                  },
+                ]}
+              />
             )}
-          </>
+          </View>
 
           <TouchableOpacity
             style={styles.tCompo4}

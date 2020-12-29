@@ -12,6 +12,10 @@ module.exports = {
         experimentalImportSupport: false,
         inlineRequires: false,
       },
+      resolver: {
+        // assetExts: assetExts.filter((ext) => ext !== "svg"),
+        sourceExts: ['jsx', 'js', 'json', 'ts', 'tsx', 'svg'],
+      },
     }),
   },
-};
+}
